@@ -1,79 +1,99 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+/* -----------------------------------------------------------
+   RESET & BASE STYLES
+----------------------------------------------------------- */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: var(--font-content);
+  background-color: var(--color-beige);
+  color: #212529;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.card {
-  padding: 2em;
+  scroll-behavior: smooth;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+:root {
+  /* COULEURS PRINCIPALES */
+  --color-beige: #EFE2CA;
+  --color-brown: #5D4037;
+  --color-blue: #1565C0;
+  --color-blue-light: #64B5F6;
+  --color-green: #1B5E20;
+  --color-error: #FF0004;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* POLICES */
+  --font-logo: 'Playfair Display', serif;
+  --font-title: 'Merriweather', serif;
+  --font-content: 'Nunito Sans', sans-serif;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-title);
+  color: var(--color-brown);
+}
+
+.text-error {
+  color: var(--color-error);
+  font-weight: bold;
+}
+
+
+/* -----------------------------------------------------------
+   UTILS / GLOBALS
+----------------------------------------------------------- */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+}
+
+/* -----------------------------------------------------------
+   LEAFLET FIXES (z-index + responsive)
+----------------------------------------------------------- */
+.map-container {
+  z-index: 1;
+}
+
+/* -----------------------------------------------------------
+   ACCESSIBILITY & BASE TYPOGRAPHY
+----------------------------------------------------------- */
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+ul, ol {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+/* -----------------------------------------------------------
+   DARK MODE (optionnel / à développer plus tard)
+----------------------------------------------------------- */
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #f5f5f5;
   }
 }
