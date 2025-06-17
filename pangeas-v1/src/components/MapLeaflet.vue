@@ -42,9 +42,24 @@ export default {
 
       places.forEach(place => {
         if (place.coordinates) {
+          const popupContent = `
+            <div class="popup-card">
+              <button class="popup-fav" onclick="this.classList.toggle('active')">
+                <i class="fa-regular fa-heart popup-icon"></i>
+              </button>
+              <h5 class="mt-2">${place.name}</h5>
+              <p class="mb-1 text-muted">${place.department} • ${place.distance_km} km</p>
+              <img src="${place.image_url}" alt="${place.name}" class="popup-img" />
+              <div class="d-flex justify-content-center gap-4 mt-2">
+                <button class="btn btn-sm">Visiter</button>
+                <button class="btn btn-sm">Détail</button>
+              </div>
+            </div>
+          `;
+          this.map.closePopup();
           L.marker([place.coordinates.lat, place.coordinates.lng])
               .addTo(this.map)
-              .bindPopup(`<strong>${place.name}</strong><br>${place.department}`);
+              .bindPopup(popupContent);
         }
       });
     }
@@ -58,4 +73,5 @@ export default {
   height: 100vh;
   width: 100%;
 }
+
 </style>
