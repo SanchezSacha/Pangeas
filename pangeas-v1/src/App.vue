@@ -1,5 +1,6 @@
 <template>
   <div class="container-fluid p-0">
+    <Sidebar />
     <MapLeaflet :places="places" />
   </div>
 </template>
@@ -7,11 +8,13 @@
 <script>
 import axios from 'axios';
 import MapLeaflet from "./components/MapLeaflet.vue";
+import Sidebar from "./components/Sidebar.vue";
 
 export default {
   name: 'App',
   components: {
-    MapLeaflet
+    MapLeaflet,
+    Sidebar
   },
   data() {
     return {
