@@ -12,7 +12,8 @@
             <img src="/icons/log-in.svg" alt="Connexion" />
             Connexion
           </li>
-          <li :class="{ active: active === 'register' }" @click="active = 'register'">
+          <li :class="{ active: active === 'register' }"
+              @click="openRegister">
             <img src="/icons/user-round-plus.svg" alt="Inscription" />
             Inscription
           </li>
@@ -35,6 +36,11 @@ export default {
   methods: {
     toggleMenu() {
       this.isOpen = !this.isOpen;
+    },
+    openRegister() {
+      this.active = 'register';
+      this.$emit('open-register');
+      this.isOpen = false;
     }
   }
 }
