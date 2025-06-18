@@ -4,16 +4,15 @@
       <img src="/icons/menu.svg" alt="Menu" />
     </button>
 
-    <transition name="slide">
+    <transition name="menu-fade">
       <div class="sidebar" v-if="isOpen">
         <button class="close-btn" @click="toggleMenu">×</button>
         <ul>
-          <li :class="{ active: active === 'login' }" @click="active = 'login'">
+          <li :class="{ active: active === 'login' }" @click="openLogin">
             <img src="/icons/log-in.svg" alt="Connexion" />
             Connexion
           </li>
-          <li :class="{ active: active === 'register' }"
-              @click="openRegister">
+          <li :class="{ active: active === 'register' }" @click="openRegister">
             <img src="/icons/user-round-plus.svg" alt="Inscription" />
             Inscription
           </li>
@@ -41,6 +40,11 @@ export default {
       this.active = 'register';
       this.$emit('open-register');
       this.isOpen = false;
+    },
+    openLogin() {
+      this.active = 'login';
+      this.$emit('open-login');
+      this.isOpen = false;
     }
   }
 }
@@ -50,21 +54,33 @@ export default {
 
 /* Animations */
 
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.3s ease;
+.menu-fade-enter-active {
+  animation: sidebarIn 0.4s ease forwards;
 }
-.slide-enter-from {
-  transform: translateX(100%);
+.menu-fade-leave-active {
+  animation: sidebarOut 0.3s ease forwards;
 }
-.slide-enter-to {
-  transform: translateX(0%);
+
+@keyframes sidebarIn {
+  0% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0%) scale(1);
+  }
 }
-.slide-leave-from {
-  transform: translateX(0%);
-}
-.slide-leave-to {
-  transform: translateX(100%);
+
+@keyframes sidebarOut {
+  0% {
+    opacity: 1;
+    transform: translateX(0%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(100%) scale(0.95);
+  }
 }
 
 /* Icon menu*/
@@ -84,7 +100,19 @@ export default {
   align-items: center;
   z-index: 1100;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
+
+.burger-btn:hover {
+  transform: rotate(90deg) scale(1.05);
+  background-color: #5d4037;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.burger-btn:active {
+  transform: scale(0.95);
+}
+
 
 .burger-btn img {
   width: 24px;
@@ -125,17 +153,52 @@ export default {
 }
 
 .sidebar li {
+  position: relative;
   display: flex;
   align-items: center;
   padding: 12px 20px;
   font-weight: bold;
   color: var(--color-brown);
   cursor: pointer;
-  transition: background 0.2s;
+  overflow: hidden;
+  z-index: 1;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.sidebar li:not(.active)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background-color:#8B5E3C;
+  z-index: -1;
+  transition: left 0.4s ease;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.sidebar li:hover::before {
+  left: 0;
+}
+
+.sidebar li:not(.active):hover {
+  color: var(--color-white);
+  transform: translateY(-1px);
+}
+
+.sidebar li:not(.active):active {
+  transform: scale(0.97);
 }
 
 .sidebar li img {
   margin-right: 10px;
+  transition: filter 0.3s ease;
+}
+
+.sidebar li:hover img {
+  filter: brightness(0) saturate(100%) invert(100%);
 }
 
 .sidebar li.active img {
@@ -147,7 +210,6 @@ export default {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
 }
-
 
 /* Mobile */
 
@@ -167,6 +229,15 @@ export default {
   .burger-btn img {
     width: 20px;
     height: 20px;
+  }
+
+  .sidebar li {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .sidebar ul {
+    margin: 0;
   }
 }
 
