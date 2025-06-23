@@ -9,7 +9,7 @@
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content">
           <button class="close-modal" @click="animateClose('registration', $event)">×</button>
-          <Registration />
+          <Registration v-if="showRegistration" @open-login="showLoginModal"/>
         </div>
       </div>
     </transition>
@@ -55,6 +55,7 @@ export default {
       this.showRegistration = true;
     },
     showLoginModal() {
+      this.showRegistration = false;
       this.showLogin = true;
     },
     animateClose(modalType, event) {
@@ -80,7 +81,6 @@ export default {
 </script>
 
 <style scoped>
-/* Animation */
 @keyframes pop-out {
   0% {
     transform: scale(1);
