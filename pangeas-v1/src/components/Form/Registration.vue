@@ -15,6 +15,7 @@
             </label>
           </div>
         </div>
+        <p class="text-error d-md-none mt-2" v-if="errors.avatar">{{ errors.avatar }}</p>
 
         <!-- Pseudo + Email -->
         <div class="col-12 col-md-8">
@@ -43,7 +44,7 @@
 
       <!-- Bio -->
       <div class="form-group mb-3">
-        <p class="text-error" v-if="errors.avatar">{{ errors.avatar }}</p>
+        <p class="text-error d-none d-md-block" v-if="errors.avatar">{{ errors.avatar }}</p>
         <div class="input-group">
            <span class="input-group-text">
               <img src="/icons/pen.svg" alt="Stylo" style="width: 18px;" />
@@ -94,8 +95,6 @@
 
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
-import { registerUser } from "@/services/authService";
-
 
 export default {
   name: "Registration",
@@ -140,7 +139,7 @@ export default {
           formData.append("avatar", this.avatarFile);
         }
 
-        const response = await fetch("http://localhost:3000/api/inscription", {
+        const response = await fetch("http://localhost:3000/api/auth/inscription", {
           method: "POST",
           body: formData,
         });
