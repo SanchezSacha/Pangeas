@@ -36,10 +36,12 @@ export default {
 </script>
 
 <style scoped>
+
 .popup {
   position: fixed;
   top: 5%;
-  left: 38%;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #1b5e20;
   color: #fff;
   padding: 12px 20px;
@@ -51,6 +53,7 @@ export default {
   font-weight: 500;
   max-width: 90vw;
 }
+
 
 .icon {
   width: 20px;
