@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <SuccessPopup v-if="showSuccess" :message="successMessage" @close="showSuccess = false"/>
+    <SuccessPopup v-if="showSuccess" :message="successMessage" @closed="handleSuccessClose"/>
     <h1 class="form-title">Connexion</h1>
     <form class="form-container" @submit.prevent="submitForm()" novalidate>
       <div class="input-duo">
@@ -33,6 +33,7 @@
 
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
+import { mapMutations } from 'vuex';
 export default {
   name: "Connexion",
   components: { SuccessPopup },
@@ -48,6 +49,7 @@ export default {
     };
   },
   methods: {
+    ...mapMutations(['setUser']),
     async submitForm() {
       try {
         this.errors = {};
@@ -69,12 +71,17 @@ export default {
           return;
         }
 
+        this.setUser(data.user);
         this.successMessage = data.message || "Connexion réussie !";
         this.showSuccess = true;
 
       } catch (error) {
         this.errors = { general: "Une erreur s’est produite." };
       }
+    },
+    handleSuccessClose() {
+      this.showSuccess = false;
+      this.$emit('close-login');
     }
   }
 

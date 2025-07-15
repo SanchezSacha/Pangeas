@@ -20,7 +20,7 @@
           <Connexion @open-register-from-login="() => {
             showLogin = false;
             showRegistration = true;
-          }"
+          }" @close-login="showLogin = false"
           />
         </div>
       </div>
@@ -30,10 +30,11 @@
 
 <script>
 import axios from 'axios';
-import MapLeaflet from "./components/MapLeaflet.vue";
+import MapLeaflet from "./components/Map/MapLeaflet.vue";
 import Sidebar from "./components/Sidebar.vue";
-import Registration from "./components/Form/Registration.vue";
-import Connexion from "./components/Form/Connexion.vue";
+import Registration from "./components/Modal/Registration.vue";
+import Connexion from "./components/Modal/Connexion.vue";
+import store from './store';
 
 export default {
   name: 'App',
@@ -73,8 +74,13 @@ export default {
     try {
       const res = await axios.get('http://localhost:3000/accueil');
       this.places = res.data;
+
+      const resUser = await axios.get('http://localhost:3000/api/auth/me', { withCredentials: true });
+      if (resUser.data.success && resUser.data.user) {
+        store.commit('setUser', resUser.data.user);
+      }
     } catch (err) {
-      console.error('Erreur lors du chargement des lieux :', err.message);
+      console.error('Erreur lors du chargement:', err.message);
     }
   }
 };
