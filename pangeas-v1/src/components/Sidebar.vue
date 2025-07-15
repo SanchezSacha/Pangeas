@@ -7,7 +7,7 @@
     <transition name="menu-fade">
       <div class="sidebar" v-if="isOpen">
         <button class="close-btn" @click="toggleMenu">×</button>
-        <ul>
+        <ul v-if="!isLoggedIn">
           <li :class="{ active: active === 'login' }" @click="openLogin">
             <img src="/icons/log-in.svg" alt="Connexion" />
             Connexion
@@ -17,6 +17,25 @@
             Inscription
           </li>
         </ul>
+        <ul v-else>
+          <li>
+            <img src="/icons/user.svg" alt="Compte" />
+            Mon compte
+          </li>
+          <li>
+            <img src="/icons/heart.svg" alt="Favoris" />
+            Favoris
+          </li>
+          <li>
+            <img src="/icons/cog.svg" alt="Paramètres" />
+            Paramètres
+          </li>
+          <li @click="deconnexion">
+            <img src="/icons/log-out.svg" alt="Déconnexion" />
+            Déconnexion
+          </li>
+        </ul>
+
       </div>
     </transition>
   </div>
@@ -24,6 +43,7 @@
 
 
 <script>
+import { mapGetters, mapMutations } from 'vuex';
 export default {
   name: 'Sidebar',
   data() {
@@ -32,7 +52,11 @@ export default {
       active: null,
     };
   },
+  computed: {
+    ...mapGetters(['isLoggedIn'])
+  },
   methods: {
+    ...mapMutations(['logout']),
     toggleMenu() {
       this.isOpen = !this.isOpen;
     },
@@ -44,6 +68,10 @@ export default {
     openLogin() {
       this.active = 'login';
       this.$emit('open-login');
+      this.isOpen = false;
+    },
+    deconnexion() {
+      this.logout();
       this.isOpen = false;
     }
   }
