@@ -2,7 +2,8 @@ import { createStore } from 'vuex';
 export default createStore({
     state: {
         user: null,
-        userPosition: null
+        userPosition: null,
+        currentVisit: null,
     },
     mutations: {
         setUser(state, userData) {
@@ -13,6 +14,12 @@ export default createStore({
         },
         setUserPosition(state, coords) {
             state.userPosition = coords;
+        },
+        setCurrentVisit(state, visitData) {
+            state.currentVisit = visitData;
+        },
+        clearCurrentVisit(state) {
+            state.currentVisit = null;
         }
     },
     getters: {

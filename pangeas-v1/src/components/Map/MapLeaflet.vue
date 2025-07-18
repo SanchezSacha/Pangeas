@@ -6,8 +6,10 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine';
-import { nextTick, h, render } from 'vue';
+import { nextTick } from 'vue';
 import PlaceModal from '../Map/PlaceModal.vue';
+import ValidateVisitPopup from '../Modal/ValidateVisitPopup.vue';
+import haversine from 'haversine-distance';
 import store from '../../store';
 import { createApp } from 'vue';
 import axios from "axios";
@@ -20,7 +22,9 @@ export default {
   data() {
     return {
       map: null,
-      routeControl: null
+      routeControl: null,
+      validationInterval: null,
+      popupInstance: null,
     };
   },
   methods: {
@@ -47,12 +51,10 @@ export default {
         this.markVisitAsOngoing(placeId, from, to);
       });
 
-      // Tiles
       L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap France'
       }).addTo(this.map);
 
-      // Popups
       places.forEach(place => {
         if (place.coordinates) {
           const popupContainer = document.createElement('div');
@@ -67,40 +69,85 @@ export default {
       });
     },
     markVisitAsOngoing(placeId, from, to) {
-      const userId = this.$store.state.user?.id;
-      if (!userId) return;
-
-      axios.post('http://localhost:3000/api/visit/start', {
-        user_id: userId,
-        place_id: placeId,
-        user_lat: from.lat,
-        user_lng: from.lng
-      }, { withCredentials: true })
-          .then(res => console.log('Visite passée en ongoing'))
-          .catch(err => console.error('Erreur:', err));
+      this.$store.commit('setCurrentVisit', { place_id: placeId });
+      this.startValidationWatcher(placeId, to);
     },
-    created() {
-      this.map.on('start-route', (e) => {
-        const { from, to, placeId } = e;
 
-        if (this.routeControl) {
-          this.map.removeControl(this.routeControl);
+    startValidationWatcher(placeId, destinationCoords) {
+      if (this.validationInterval) clearInterval(this.validationInterval);
+
+      this.validationInterval = setInterval(async () => {
+        const userPos = this.$store.state.userPosition;
+        if (!userPos) return;
+
+        const userCoords = {
+          latitude: userPos.lat,
+          longitude: userPos.lng
+        };
+        const destCoords = {
+          latitude: destinationCoords.lat,
+          longitude: destinationCoords.lng
+        };
+        const distance = haversine(userCoords, destCoords);
+
+        if (distance <= 50) {
+          clearInterval(this.validationInterval);
+          const container = document.createElement('div');
+          const popupApp = createApp(ValidateVisitPopup, {
+            placeId,
+            userCoords,
+            onValidated: () => {
+              this.map.closePopup();
+              window.location.href = '/';
+            }
+          });
+          popupApp.use(store);
+          popupApp.mount(container);
+
+          this.popupInstance = L.popup()
+              .setLatLng([destinationCoords.lat, destinationCoords.lng])
+              .setContent(container)
+              .openOn(this.map);
         }
-
-        this.routeControl = L.Routing.control({
-          waypoints: [
-            L.latLng(from.lat, from.lng),
-            L.latLng(to.lat, to.lng)
-          ],
-          routeWhileDragging: false,
-          addWaypoints: false,
-          createMarker: () => null
-        }).addTo(this.map);
-
-        this.markVisitAsOngoing(placeId, from, to);
-      });
-
+      }, 3000);
+    },
+  },
+  beforeUnmount() {
+    if (this.validationInterval) clearInterval(this.validationInterval);
+  },
+  mounted() {
+    if (!this.$store.state.userPosition && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+          (position) => {
+            this.$store.commit('setUserPosition', {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            });
+          }
+      );
     }
+    axios.get('/api/visit/ongoing', { withCredentials: true })
+        .then(async (res) => {
+          const visit = res.data.visit;
+          if (visit && visit.place_id) {
+            const place = this.places.find(p => p._id === visit.place_id);
+            const userPos = this.$store.state.userPosition;
+
+            if (place && place.coordinates && userPos) {
+              const from = { lat: userPos.lat, lng: userPos.lng };
+              const to = {
+                lat: place.coordinates.lat,
+                lng: place.coordinates.lng
+              };
+              this.map.fire('start-route', {from, to, placeId: place._id});
+              this.startValidationWatcher(place._id, to);
+              this.$store.commit('setCurrentVisit', visit);
+            }
+          }
+        })
+        .catch(err => {
+          console.error('Pas de visite en cours ou erreur :', err.response?.data || err.message);
+        });
   },
   watch: {
     places: {
