@@ -75,7 +75,7 @@ export default {
       const res = await axios.get('http://localhost:3000/accueil');
       this.places = res.data;
 
-      const resUser = await axios.get('http://localhost:3000/api/auth/me', { withCredentials: true });
+      const resUser = await axios.get('api/auth/me', { withCredentials: true });
       if (resUser.data.success && resUser.data.user) {
         store.commit('setUser', resUser.data.user);
       }

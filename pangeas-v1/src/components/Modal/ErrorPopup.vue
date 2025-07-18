@@ -1,7 +1,7 @@
 <template>
   <transition name="fade-slide">
-    <div v-if="visible" class="popup">
-      <img src="/icons/check.svg" alt="Succès" class="icon" />
+    <div v-if="visible" class="popup error-popup">
+      <img src="/icons/x.svg" alt="Erreur" class="icon" />
       <span class="message">{{ message }}</span>
     </div>
   </transition>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  name: "SuccessPopup",
+  name: "ErrorPopup",
   props: {
     message: {
       type: String,
@@ -17,7 +17,7 @@ export default {
     },
     duration: {
       type: Number,
-      default: 1500
+      default: 2500
     }
   },
   data() {
@@ -36,14 +36,11 @@ export default {
 </script>
 
 <style scoped>
-
 .popup {
   position: fixed;
   top: 5%;
   left: 50%;
   transform: translateX(-50%);
-  background-color: #1b5e20;
-  color: #fff;
   padding: 12px 20px;
   border-radius: 8px;
   display: flex;
@@ -59,15 +56,20 @@ export default {
   line-height: 1.4;
 }
 
-.message {
-  display: inline-block;
-  max-width: 70vw;
+.error-popup {
+  background-color: var(--color-error);
+  color: #fff;
 }
 
 .icon {
   width: 20px;
   height: 20px;
   margin-right: 10px;
+}
+
+.message {
+  display: inline-block;
+  max-width: 70vw;
 }
 
 .fade-slide-enter-active,
