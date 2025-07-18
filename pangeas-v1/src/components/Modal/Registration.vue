@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <SuccessPopup v-if="showSuccess" :message="successMessage" @closed="redirectToLogin"/>
+    <ErrorPopup v-if="showError" :message="errorMessage" @closed="showError = false" />
     <h1 class="form-title">Créer votre compte</h1>
 
     <form class="form-container" @submit.prevent="submitForm" novalidate>
@@ -95,10 +96,14 @@
 
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
+import ErrorPopup from "./ErrorPopup.vue";
 
 export default {
   name: "Registration",
-  components: { SuccessPopup },
+  components: {
+    ErrorPopup,
+    SuccessPopup
+  },
   data() {
     return {
       form: {
@@ -108,13 +113,14 @@ export default {
         password: "",
         confirmPassword: "",
         cgu_accepted: false,
-        successMessage: "",
       },
       avatarFile: null,
       avatarPreview: "/img-avatar.jpg",
       errors: {},
       showSuccess: false,
       successMessage: "",
+      showError: false,
+      errorMessage: ""
     };
   },
   methods: {
@@ -141,6 +147,7 @@ export default {
 
         const response = await fetch("http://localhost:3000/api/auth/inscription", {
           method: "POST",
+          credentials: "include",
           body: formData,
         });
 
@@ -158,7 +165,8 @@ export default {
         this.showSuccess = true;
 
       } catch (error) {
-        this.errors = { general: "Une erreur s’est produite." };
+        this.errorMessage = "Une erreur s’est produite.";
+        this.showError = true;
       }
     },
     redirectToLogin() {

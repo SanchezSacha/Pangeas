@@ -44,6 +44,8 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
+import store from "../store/index.js";
+import axios from "axios";
 export default {
   name: 'Sidebar',
   data() {
@@ -70,9 +72,14 @@ export default {
       this.$emit('open-login');
       this.isOpen = false;
     },
-    deconnexion() {
-      this.logout();
-      this.isOpen = false;
+    async deconnexion() {
+      try {
+        await axios.post('api/auth/logout', {}, { withCredentials: true });
+        store.commit('logout');
+        this.isOpen = false;
+      } catch (err) {
+        console.error('Erreur lors de la déconnexion :', err);
+      }
     }
   }
 }
