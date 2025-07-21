@@ -145,7 +145,7 @@ export default {
           formData.append("avatar", this.avatarFile);
         }
 
-        const response = await fetch("http://localhost:3000/api/auth/inscription", {
+        const response = await fetch("api/auth/inscription", {
           method: "POST",
           credentials: "include",
           body: formData,
