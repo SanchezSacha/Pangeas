@@ -1,10 +1,8 @@
 <template>
   <div class="container-fluid p-0">
-    <Sidebar
-        @open-register="showRegisterModal"
-        @open-login="showLoginModal"
-    />
-    <MapLeaflet :places="places" />
+    <Sidebar @open-register="showRegisterModal" @open-login="showLoginModal"/>
+    <MapLeaflet v-if="$route.path === '/'" :places="places" />
+    <router-view />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content">
@@ -17,16 +15,19 @@
       <div class="modal-overlay" v-if="showLogin">
         <div class="modal-content">
           <button class="close-modal" @click="animateClose('login', $event)">×</button>
-          <Connexion @open-register-from-login="() => {
-            showLogin = false;
-            showRegistration = true;
-          }" @close-login="showLogin = false"
+          <Connexion
+              @open-register-from-login="() => {
+              showLogin = false;
+              showRegistration = true;
+            }"
+              @close-login="showLogin = false"
           />
         </div>
       </div>
     </transition>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';
