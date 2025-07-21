@@ -18,7 +18,12 @@
           </li>
         </ul>
         <ul v-else>
-          <li>
+          <li :class="{ active: isActiveRoute('Home') }" @click="goToHome">
+            <img src="/icons/map.svg" alt="Carte" />
+            Carte
+          </li>
+
+          <li :class="{ active: isActiveRoute('MonCompte') }" @click="goToAccount">
             <img src="/icons/user.svg" alt="Compte" />
             Mon compte
           </li>
@@ -80,6 +85,17 @@ export default {
       } catch (err) {
         console.error('Erreur lors de la déconnexion :', err);
       }
+    },
+    goToAccount() {
+      this.isOpen = false;
+      this.$router.push({ name: 'MonCompte' });
+    },
+    goToHome() {
+      this.isOpen = false;
+      this.$router.push({ name: 'Home' });
+    },
+    isActiveRoute(name) {
+      return this.$route.name === name;
     }
   }
 }
@@ -148,7 +164,6 @@ export default {
   transform: scale(0.95);
 }
 
-
 .burger-btn img {
   width: 24px;
   height: 24px;
@@ -167,7 +182,7 @@ export default {
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
   border-bottom-left-radius: 12px;
-  padding-top: 3rem;
+  padding-top: 5rem;
 }
 
 .sidebar .close-btn {
@@ -207,7 +222,7 @@ export default {
   left: -100%;
   width: 100%;
   height: 100%;
-  background-color:#8B5E3C;
+  background-color:var(--color-brown);
   z-index: -1;
   transition: left 0.4s ease;
   border-top-right-radius: 20px;
@@ -251,7 +266,7 @@ export default {
 @media screen and (max-width: 767px) {
   .sidebar {
     width: 33.333vw;
-    min-width: 140px;
+    min-width: 160px;
   }
   .burger-btn {
     top: 0.5rem;
