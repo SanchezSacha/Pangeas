@@ -1,41 +1,42 @@
 <template>
   <SuccessPopup v-if="showSuccessPopup" :message="successMessage" @closed="showSuccessPopup = false"/>
   <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @closed="showErrorPopup = false"/>
+
   <div class="edit-account">
-    <!-- Avatar -->
-    <div class="avatar-upload relative w-32 h-32 mx-auto mb-4">
-      <label for="avatarInput" class="cursor-pointer block w-full h-full relative group">
-        <img :src="avatarPreview" alt="Avatar" class="rounded-full w-full h-full object-cover border border-gray-300 shadow-sm transition-transform duration-200 group-hover:scale-105"/>
-        <div class="absolute inset-0 bg-black bg-opacity-20 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-          <img src="/icons/pen.svg" alt="Modifier" class="w-6 h-6" />
+    <div class="row align-items-center g-4">
+      <div class="col-12 col-md-4 d-flex justify-content-center">
+        <div class="avatar-upload">
+          <label for="avatar">
+            <img :src="avatarPreview" alt="Avatar" class="avatar-image" />
+            <input type="file" id="avatar" @change="handleAvatarChange" @input="markModified" hidden />
+            <div class="avatar-hover"></div>
+          </label>
         </div>
-        <input type="file" id="avatarInput" class="hidden" @change="handleAvatarChange" accept="image/*" />
-      </label>
-      <p v-if="errors.avatar" class="text-red-500 text-sm mt-2 text-center">{{ errors.avatar }}</p>
-    </div>
+      </div>
 
-    <!-- Pseudo -->
-    <div class="mt-4 relative">
-      <label for="pseudo">Pseudo</label>
-      <input id="pseudo" v-model="form.pseudo" class="input pr-10" type="text" placeholder="Ton pseudo"/>
-      <span class="absolute right-2 top-[36px] opacity-60">
-        <img src="/icons/pen.svg" alt="Modifier le pseudo" class="w-4 h-4" />
-      </span>
-      <p v-if="errors.pseudo" class="text-red-500 text-sm mt-1">{{ errors.pseudo }}</p>
-    </div>
+      <div class="col-12 col-md-8">
+        <div class="pseudo-section">
+          <input v-if="isEditingPseudo" v-model="form.pseudo" class="pseudo-input" @blur="isEditingPseudo = false" @input="markModified" autofocus/>
+          <span v-else>{{ form.pseudo }}</span>
+          <img src="/icons/pen.svg" class="pen-icon cursor-pointer" @click="isEditingPseudo = true" />
+        </div>
 
-    <!-- Bio -->
-    <div class="mt-4 relative">
-      <label for="bio">Bio</label>
-      <textarea id="bio" v-model="form.bio" class="textarea pr-10" rows="3" placeholder="Je suis..."></textarea>
-      <span class="absolute right-2 top-[56px] opacity-60">
-        <img src="/icons/pen.svg" alt="Modifier la bio" class="w-4 h-4" />
-      </span>
-      <p v-if="errors.bio" class="text-red-500 text-sm mt-1">{{ errors.bio }}</p>
-    </div>
+        <div class="bio-section">
+          <label for="bio">Bio
+            <img src="/icons/pen.svg" alt="Modifier la bio" class="pen-icon" />
+          </label>
+          <textarea id="bio" v-model="form.bio" class="textarea" rows="3" @input="markModified"></textarea>
+          <p v-if="errors.bio" class="text-red-500 text-sm mt-1">{{ errors.bio }}</p>
+        </div>
 
-    <button @click="submitUpdate" class="btn-primary mt-6">Sauvegarder</button>
+        <div class="btn-actions" v-if="formModified || avatarFile">
+          <button @click="submitUpdate" class="btn-primary">Sauvegarder</button>
+          <button @click="resetChanges" class="btn-secondary">Annuler</button>
+        </div>
+      </div>
+    </div>
   </div>
+
 </template>
 
 
@@ -69,7 +70,9 @@ export default {
       showSuccessPopup: false,
       showErrorPopup: false,
       successMessage: "",
-      errorMessage: ""
+      errorMessage: "",
+      formModified: false,
+      isEditingPseudo: false,
     };
   },
   watch: {
@@ -107,6 +110,8 @@ export default {
           this.$emit('updateUser', data.user);
 
           this.errors = {};
+          this.formModified = false;
+          this.avatarFile = null;
 
           this.successMessage = "Profil mis à jour avec succès !";
           this.showSuccessPopup = true;
@@ -125,6 +130,20 @@ export default {
         this.errorMessage = "Une erreur s’est produite.";
         this.showErrorPopup = true;
       }
+    },
+    markModified() {
+      this.formModified = true;
+    },
+    resetChanges() {
+      if (this.user) {
+        this.form.pseudo = this.user.pseudo;
+        this.form.bio = this.user.bio || '';
+        this.avatarPreview = this.user.avatar_url ? `${this.apiBaseUrl}${this.user.avatar_url}` : '/img-avatar.jpg';
+        this.avatarFile = null;
+        this.errors = {};
+        this.formModified = false;
+        this.isEditingPseudo = false;
+      }
     }
   },
   mounted() {
@@ -140,28 +159,128 @@ export default {
 </script>
 
 <style scoped>
-.input {
-  border: 1px solid #ccc;
-  padding: 8px;
-  border-radius: 0.5rem;
+.edit-account {
+  margin: 1rem auto;
+  padding: 0 1rem;
+  color: var(--color-brown);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Avatar */
+.avatar-upload {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-upload label {
+  position: relative;
+  display: inline-block;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-brown);
+  cursor: pointer;
+}
+
+.avatar-image {
   width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-hover {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.avatar-upload label:hover .avatar-hover {
+  opacity: 1;
+}
+
+/* Pseudo */
+.pseudo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.pseudo-input {
+  font-size: 1.8rem;
+  max-width: 500px;
+  font-weight: 700;
+  text-align: center;
+  border: 2px solid var(--color-brown);
+  outline: none;
+}
+
+/* Bio */
+.bio-section {
+  margin-top: 1rem;
+}
+.bio-section label {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
 }
 .textarea {
-  border: 1px solid #ccc;
-  padding: 8px;
-  border-radius: 0.5rem;
+  background: transparent;
+  border: 2px solid #5a3e36;
+  border-radius: 1rem;
+  padding: 1rem;
   width: 100%;
-  resize: vertical;
+  font-size: 1rem;
+  color: #5a3e36;
+  line-height: 1.4;
 }
+
+.pen-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.8;
+}
+
 .btn-primary {
-  background-color: #3490dc;
+  background-color: #5a3e36;
   color: white;
+  font-weight: 600;
   padding: 10px 16px;
-  border-radius: 0.5rem;
-  font-weight: bold;
+  border-radius: 0.6rem;
+  margin-top: 2rem;
   width: 100%;
 }
-.avatar-upload img {
-  transition: transform 0.2s ease;
+.btn-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
 }
+.btn-secondary {
+  background-color: #5a3e36;
+  color: white;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: 0.6rem;
+  margin-top: 2rem;
+  width: 100%;
+}
+
 </style>

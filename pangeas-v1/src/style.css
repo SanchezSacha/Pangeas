@@ -89,12 +89,4 @@ ul, ol {
   list-style: none;
 }
 
-/* -----------------------------------------------------------
-   DARK MODE (optionnel / à développer plus tard)
------------------------------------------------------------ */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #121212;
-    color: #f5f5f5;
-  }
-}
+
