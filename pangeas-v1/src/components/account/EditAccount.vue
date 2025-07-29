@@ -160,10 +160,11 @@ export default {
 
 <style scoped>
 .edit-account {
-  margin: 1rem auto;
-  padding: 0 1rem;
+  margin: 2rem auto;
+  padding: 2rem 1rem;
   color: var(--color-brown);
-  font-family: 'Inter', sans-serif;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 /* Avatar */

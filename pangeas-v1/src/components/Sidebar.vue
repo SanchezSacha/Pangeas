@@ -28,10 +28,6 @@
             Mon compte
           </li>
           <li>
-            <img src="/icons/heart.svg" alt="Favoris" />
-            Favoris
-          </li>
-          <li>
             <img src="/icons/cog.svg" alt="Paramètres" />
             Paramètres
           </li>
