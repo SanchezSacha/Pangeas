@@ -4,6 +4,8 @@
 
     <section class="profil-section">
       <EditAccount v-if="user" :user="user" @updateUser="handleUserUpdate" />
+      <FavoriteCarousel />
+      <StatsUser />
     </section>
   </div>
 </template>
@@ -12,6 +14,8 @@
 import { ref, onMounted } from 'vue';
 import EditAccount from '../account/EditAccount.vue';
 import Sidebar from "../Sidebar.vue";
+import FavoriteCarousel from "./FavoriteCarousel.vue";
+import StatsUser from "./StatsUser.vue";
 
 const user = ref(null);
 
@@ -33,3 +37,11 @@ function handleUserUpdate(updatedUser) {
 
 onMounted(fetchUser);
 </script>
+
+<style scoped>
+.mon-compte-page {
+  background-color: var(--color-beige);
+  min-height: 100vh;
+  padding: 1rem;
+}
+</style>

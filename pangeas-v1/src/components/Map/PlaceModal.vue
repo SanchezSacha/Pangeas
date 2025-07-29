@@ -1,13 +1,14 @@
 <template>
   <div class="popup-card">
     <button class="popup-fav" @click="toggleFavorite" :disabled="!isLoggedIn" :class="{ 'fav-disabled': !isLoggedIn }">
-      <i class="fa-regular fa-heart popup-icon"></i>
+      <i :class="favoriteIconClass + ' popup-icon'"></i>
     </button>
+
     <h5 class="mt-2">{{ place.name }}</h5>
     <p class="mb-1 text-muted">{{ place.department }} • {{ place.distance_km }} km</p>
-    <img :src="place.image_url" :alt="place.name" class="popup-img" />
+    <img :src="place.image_url" loading="lazy" :alt="place.name" class="popup-img" />
     <div class="place-actions">
-      <button class="action-button" :class="{ 'disabled': !isLoggedIn || hasAnotherVisit }" :disabled="!isLoggedIn || hasAnotherVisit" @click="isCurrentPlace ? consultRoute() : handleVisit()">
+      <button class="action-button" v-if="source !== 'favorites'" :class="{ 'disabled': !isLoggedIn || hasAnotherVisit }" :disabled="!isLoggedIn || hasAnotherVisit" @click="isCurrentPlace ? consultRoute() : handleVisit()">
         {{ isCurrentPlace ? 'Consulter l’itinéraire' : 'Visiter' }}
       </button>
       <button v-if="isCurrentPlace" class="action-button danger" @click="cancelVisit">Annuler</button>
@@ -20,7 +21,7 @@
     <p v-if="geoError" class="text-danger mt-2 text-center" style="font-weight: bold">
       La géolocalisation est requise pour valider la visite.
     </p>
-    <SuccessPopup v-if="showSuccess" :message="successMessage" @closed="handleSuccessClosed"/>
+    <SuccessPopup v-if="showSuccess" :message="successMessage"/>
     <ErrorPopup v-if="showError" :message="errorMessage" @closed="showError = false"/>
   </div>
 </template>
@@ -36,7 +37,11 @@ export default {
   components: {ErrorPopup, SuccessPopup},
   props: {
     place: Object,
-    map: Object
+    map: Object,
+    source: {
+      type: String,
+      default: 'map'
+    }
   },
   data (){
     return {
@@ -54,7 +59,10 @@ export default {
     const isCurrentPlace = computed(() => currentVisit.value?.place_id === props.place._id);
     const hasAnotherVisit = computed(() => currentVisit.value && !isCurrentPlace.value);
     const geoError = ref(false);
-    const toggleFavorite = () => console.log("Ajouter aux favoris (à faire)");
+    const isFavorite = computed(() => store.getters.isFavorite(props.place._id));
+    const favoriteIconClass = computed(() => {
+      return isFavorite.value ? 'fa-solid fa-heart' : 'fa-regular fa-heart';
+    });
 
     // Méthodes
       // Récupération de la position utilisateur et début du système de visite
@@ -129,7 +137,25 @@ export default {
             alert(err.response?.data?.message || "Erreur lors de l'annulation.");
           });
     };
-    return { isLoggedIn, toggleFavorite, handleVisit, consultRoute, cancelVisit, isCurrentPlace, hasAnotherVisit, geoError };
+    const toggleFavorite = async () => {
+      if (!isLoggedIn.value) return;
+      const placeId = props.place._id;
+      try {
+        if (isFavorite.value) {
+          await axios.delete(`/api/favorites/${placeId}`, { withCredentials: true });
+          store.commit('removeFavorite', placeId);
+        } else {
+          await axios.post('/api/favorites', { placeId }, { withCredentials: true });
+          store.commit('addFavorite', placeId);
+        }
+      } catch (err) {
+        console.error('Erreur lors du toggle favori :', err.response?.data || err.message);
+      }
+    };
+    return {
+      isLoggedIn, toggleFavorite, handleVisit, consultRoute, cancelVisit,
+      isCurrentPlace, hasAnotherVisit, geoError, favoriteIconClass
+    };
   },
 };
 </script>
