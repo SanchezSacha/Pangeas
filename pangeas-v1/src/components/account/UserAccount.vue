@@ -6,6 +6,7 @@
       <EditAccount v-if="user" :user="user" @updateUser="handleUserUpdate" />
       <FavoriteCarousel />
       <StatsUser />
+      <HistoricPlaces />
     </section>
   </div>
 </template>
@@ -16,6 +17,7 @@ import EditAccount from '../account/EditAccount.vue';
 import Sidebar from "../Sidebar.vue";
 import FavoriteCarousel from "./FavoriteCarousel.vue";
 import StatsUser from "./StatsUser.vue";
+import HistoricPlaces from "./HistoricPlaces.vue";
 
 const user = ref(null);
 
