@@ -32,6 +32,7 @@
 
 <script setup>
 import {computed, onMounted, ref} from 'vue';
+import axios from "@/axios.js";
 
 const stats = ref({
   total_places: 0,
@@ -61,16 +62,15 @@ const categoryLabels = {
 
 const fetchStats = async () => {
   try {
-    const res = await fetch('/api/stats', { credentials: 'include' });
-    const data = await res.json();
-    if (data.success) {
-      stats.value = data.stats;
+    const response = await axios.get('/api/stats', {withCredentials: true});
+
+    if (response.data.success) {
+      stats.value = response.data.stats;
     }
   } catch (err) {
     console.error('Erreur lors de la récupération des statistiques :', err);
   }
 };
-
 const formattedDistance = computed(() =>
     stats.value.total_km ? stats.value.total_km.toFixed(2) : '0.00'
 );

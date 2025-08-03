@@ -1,8 +1,7 @@
 <template>
   <div class="container-fluid p-0">
     <Sidebar @open-register="showRegisterModal" @open-login="showLoginModal"/>
-    <MapLeaflet v-if="$route.path === '/'" :places="places" />
-    <router-view />
+    <router-view :places="places" />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content">
@@ -30,8 +29,7 @@
 
 
 <script>
-import axios from 'axios';
-import MapLeaflet from "./components/Map/MapLeaflet.vue";
+import axios from '@/axios.js';
 import Sidebar from "./components/Sidebar.vue";
 import Registration from "./components/Modal/Registration.vue";
 import Connexion from "./components/Modal/Connexion.vue";
@@ -40,7 +38,6 @@ import store from './store';
 export default {
   name: 'App',
   components: {
-    MapLeaflet,
     Sidebar,
     Registration,
     Connexion

@@ -17,7 +17,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import axios from "@/axios.js";
 import SuccessPopup from "../Modal/SuccessPopup.vue";
 import ErrorPopup from "../Modal/ErrorPopup.vue";
 

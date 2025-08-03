@@ -32,6 +32,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import PlaceModal from '../map/PlaceModal.vue';
+import axios from "@/axios.js";
 
 const store = useStore();
 const allFavoritePlaces = ref([]);
@@ -46,8 +47,8 @@ const visibleFavorites = computed(() =>
 );
 const fetchFavorites = async () => {
   try {
-    const res = await fetch('/api/favorites', { credentials: 'include' });
-    const data = await res.json();
+    const response = await axios.get('/api/favorites', {withCredentials: true});
+    const data = response.data;
     if (data.success) {
       allFavoritePlaces.value = data.favorites;
       const favoriteIds = data.favorites.map(place => place._id);
@@ -57,7 +58,6 @@ const fetchFavorites = async () => {
     console.error('Erreur lors de la récupération des favoris:', error);
   }
 };
-
 const scrollLeft = () => {
   if (carouselRef.value) {
     carouselRef.value.scrollBy({ left: -300, behavior: 'smooth' });

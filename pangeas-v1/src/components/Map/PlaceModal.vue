@@ -12,7 +12,7 @@
         {{ isCurrentPlace ? 'Consulter l’itinéraire' : 'Visiter' }}
       </button>
       <button v-if="isCurrentPlace" class="action-button danger" @click="cancelVisit">Annuler</button>
-      <button class="action-button">Détail</button>
+      <button class="action-button" @click="goToDetail">Détail</button>
     </div>
 
     <p v-if="!isLoggedIn" class="text-danger mt-2 text-center" style="font-weight: bold">
@@ -29,9 +29,10 @@
 <script>
 import {computed, ref} from 'vue';
 import { useStore } from 'vuex';
-import axios from "axios";
+import axios from '@/axios';
 import SuccessPopup from "../Modal/SuccessPopup.vue";
 import ErrorPopup from "../Modal/ErrorPopup.vue";
+import router from "../../router/index.js";
 
 export default {
   components: {ErrorPopup, SuccessPopup},
@@ -43,16 +44,12 @@ export default {
       default: 'map'
     }
   },
-  data (){
-    return {
-      showSuccess: false,
-      successMessage : "",
-      showError : false,
-      errorMessage: "",
-    }
-  },
   setup(props) {
     const store = useStore();
+    const showSuccess = ref(false);
+    const successMessage = ref("");
+    const showError = ref(false);
+    const errorMessage = ref("");
     // Computed
     const isLoggedIn = computed(() => store.getters.isLoggedIn);
     const currentVisit = computed(() => store.state.currentVisit);
@@ -96,11 +93,12 @@ export default {
               withCredentials: true
             })
                 .then(() => {
-                  this.successMessage = "Visite réussi !";
-                  this.showSuccess = true;
+                  successMessage.value = "Visite commencée avec succès";
+                  showSuccess.value = true;
                 })
                 .catch((err) => {
-                  console.error("Erreur lors du démarrage de la visite :", err.response?.data || err.message);
+                  errorMessage.value = err.response?.data?.message || "Erreur lors du démarrage de la visite.";
+                  showError.value = true;
                 });
           },
           (error) => {
@@ -114,7 +112,7 @@ export default {
           }
       );
     };
-    // Sauvegarde de la visite en cours et possibilité d'annulation
+    // Sauvegarde de la visite en cours
     const consultRoute = () => {
       const userPos = store.state.userPosition;
       if (!userPos) {
@@ -131,12 +129,16 @@ export default {
       axios.delete('/api/visit/cancel', { withCredentials: true })
           .then(() => {
             store.commit('clearCurrentVisit');
-            alert("Visite annulée.");
+            props.map.fire('cancel-route');
+            successMessage.value = "Visite annulée";
+            showSuccess.value = true;
           })
           .catch(err => {
-            alert(err.response?.data?.message || "Erreur lors de l'annulation.");
+            errorMessage.value = err.response?.data?.message || "Erreur lors de l'annulation.";
+            showError.value = true;
           });
     };
+
     const toggleFavorite = async () => {
       if (!isLoggedIn.value) return;
       const placeId = props.place._id;
@@ -152,9 +154,12 @@ export default {
         console.error('Erreur lors du toggle favori :', err.response?.data || err.message);
       }
     };
+    const goToDetail = () => {
+      router.push(`/lieux/${props.place._id}`);
+    };
     return {
-      isLoggedIn, toggleFavorite, handleVisit, consultRoute, cancelVisit,
-      isCurrentPlace, hasAnotherVisit, geoError, favoriteIconClass
+      isLoggedIn, toggleFavorite, handleVisit, consultRoute, cancelVisit, goToDetail,
+      isCurrentPlace, hasAnotherVisit, geoError, favoriteIconClass, showSuccess, successMessage, showError, errorMessage
     };
   },
 };

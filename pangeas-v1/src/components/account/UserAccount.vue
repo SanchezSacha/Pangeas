@@ -18,21 +18,20 @@ import Sidebar from "../Sidebar.vue";
 import FavoriteCarousel from "./FavoriteCarousel.vue";
 import StatsUser from "./StatsUser.vue";
 import HistoricPlaces from "./HistoricPlaces.vue";
+import axios from "@/axios.js";
 
 const user = ref(null);
 
 async function fetchUser() {
   try {
-    const res = await fetch('/api/auth/me', { credentials: 'include' });
-    const data = await res.json();
-    if (data.success) {
-      user.value = data.user;
+    const response = await axios.get('/api/auth/me', {withCredentials: true});
+    if (response.data.success) {
+      user.value = response.data.user;
     }
   } catch (error) {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
   }
 }
-
 function handleUserUpdate(updatedUser) {
   user.value = updatedUser;
 }
