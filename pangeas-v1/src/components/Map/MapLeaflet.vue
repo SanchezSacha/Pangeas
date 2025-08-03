@@ -12,7 +12,7 @@ import ValidateVisitPopup from '../Modal/ValidateVisitPopup.vue';
 import haversine from 'haversine-distance';
 import store from '../../store';
 import { createApp } from 'vue';
-import axios from "axios";
+import axios from "@/axios";
 
 export default {
   name: 'MapLeaflet',
@@ -48,6 +48,11 @@ export default {
           createMarker: () => null,
         }).addTo(this.map);
 
+        this.routeControl.on('routesfound', () => {
+          const container = document.querySelector('.leaflet-routing-container');
+          if (container) container.remove();
+        });
+
         this.markVisitAsOngoing(placeId, from, to);
       });
 
@@ -66,6 +71,21 @@ export default {
               .addTo(this.map)
               .bindPopup(popupContainer);
         }
+      });
+      this.map.on('cancel-route', () => {
+        if (this.routeControl) {
+          this.map.removeControl(this.routeControl);
+          this.routeControl = null;
+        }
+        if (this.validationInterval) {
+          clearInterval(this.validationInterval);
+          this.validationInterval = null;
+        }
+        if (this.popupInstance) {
+          this.map.closePopup();
+          this.popupInstance = null;
+        }
+        this.map.setView([47, 2], 6);
       });
     },
     markVisitAsOngoing(placeId, from, to) {
@@ -112,6 +132,7 @@ export default {
       }, 3000);
     },
   },
+
   beforeUnmount() {
     if (this.validationInterval) clearInterval(this.validationInterval);
   },
@@ -148,6 +169,49 @@ export default {
         .catch(err => {
           console.error('Pas de visite en cours ou erreur :', err.response?.data || err.message);
         });
+
+    const placeFromDetail = this.$store.state.visitPlaceFromDetail;
+    if (placeFromDetail) {
+      this.$store.commit('clearVisitPlaceFromDetail'); // reset après usage
+
+      if (!navigator.geolocation) {
+        alert("Géolocalisation non disponible.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            this.$store.commit('setUserPosition', { lat: latitude, lng: longitude });
+
+            const from = { lat: latitude, lng: longitude };
+            const to = {
+              lat: placeFromDetail.coordinates.lat,
+              lng: placeFromDetail.coordinates.lng
+            };
+
+            this.map.setView([latitude, longitude], 30);
+            this.map.fire('start-route', { from, to, placeId: placeFromDetail._id });
+
+            axios.post('/api/visit/start', {
+              place_id: placeFromDetail._id,
+              user_lat: latitude,
+              user_lng: longitude
+            }, {
+              withCredentials: true
+            }).catch((err) => {
+              console.error("Erreur lors du démarrage de la visite :", err.response?.data || err.message);
+            });
+          },
+          (error) => {
+            console.warn("Erreur de géolocalisation :", error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+      );
+    }
   },
   watch: {
     places: {

@@ -34,6 +34,7 @@
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
 import { mapMutations } from 'vuex';
+import axios from "@/axios.js";
 export default {
   name: "Connexion",
   components: { SuccessPopup },
@@ -50,34 +51,34 @@ export default {
   },
   methods: {
     ...mapMutations(['setUser']),
+
     async submitForm() {
       try {
         this.errors = {};
-        const response = await fetch("http://localhost:3000/api/auth/connexion", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "include",
-          body: JSON.stringify(this.form)
-        });
+        const response = await axios.post(
+            "/api/auth/connexion",
+            this.form,
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true
+            }
+        );
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          this.errors = data.errors.reduce((acc, err) => {
-            acc[err.field] = err.message;
-            return acc;
-          }, {});
-          return;
-        }
+        const data = response.data;
 
         this.setUser(data.user);
         this.successMessage = data.message || "Connexion réussie !";
         this.showSuccess = true;
 
       } catch (error) {
-        this.errors = { general: "Une erreur s’est produite." };
+        if (error.response && error.response.status === 400 && error.response.data.errors) {
+          this.errors = error.response.data.errors.reduce((acc, err) => {
+            acc[err.field] = err.message;
+            return acc;
+          }, {});
+        } else {
+          this.errors = { general: "Une erreur s’est produite." };
+        }
       }
     },
     handleSuccessClose() {

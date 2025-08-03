@@ -25,6 +25,7 @@
 
 <script setup>
 import { onMounted, ref } from 'vue';
+import axios from "@/axios.js";
 
 const places = ref([]);
 const page = ref(1);
@@ -37,10 +38,9 @@ const fetchVisitedPlaces = async () => {
 
   loading.value = true;
   try {
-    const res = await fetch(`/api/visit/visited?page=${page.value}`, {
-      credentials: 'include'
-    });
-    const data = await res.json();
+    const response = await axios.get(`/api/visit/visited?page=${page.value}`, {withCredentials: true});
+
+    const data = response.data;
 
     if (data.success) {
       places.value = [...places.value, ...data.places];
@@ -58,7 +58,6 @@ const fetchVisitedPlaces = async () => {
     loading.value = false;
   }
 };
-
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('fr-FR', {
     day: '2-digit',

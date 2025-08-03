@@ -4,6 +4,7 @@ export default createStore({
         user: null,
         userPosition: null,
         currentVisit: null,
+        visitPlaceFromDetail: null,
         favorites: []
     },
     mutations: {
@@ -33,6 +34,12 @@ export default createStore({
         },
         removeFavorite(state, placeId) {
             state.favorites = state.favorites.filter(id => id !== placeId);
+        },
+        setVisitPlaceFromDetail(state, place) {
+            state.visitPlaceFromDetail = place;
+        },
+        clearVisitPlaceFromDetail(state) {
+            state.visitPlaceFromDetail = null;
         }
     },
     getters: {
