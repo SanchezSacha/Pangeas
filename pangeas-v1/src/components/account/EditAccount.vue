@@ -43,6 +43,7 @@
 <script>
 import SuccessPopup from "../Modal/SuccessPopup.vue";
 import ErrorPopup from "../Modal/ErrorPopup.vue";
+import axios from "@/axios";
 
 export default {
   name: 'EditAccount',
@@ -99,12 +100,10 @@ export default {
       if (this.avatarFile) {
         formData.append('avatar', this.avatarFile);
       }
+
       try {
-        const response = await fetch('/api/auth/update', {
-          method: 'PUT',
-          body: formData
-        });
-        const data = await response.json();
+        const response = await axios.put('/api/auth/update', formData, {withCredentials: true});
+        const data = response.data;
 
         if (data.success) {
           this.$emit('updateUser', data.user);

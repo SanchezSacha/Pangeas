@@ -97,6 +97,7 @@
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
 import ErrorPopup from "./ErrorPopup.vue";
+import axios from "@/axios.js";
 
 export default {
   name: "Registration",
@@ -134,6 +135,7 @@ export default {
     async submitForm() {
       try {
         this.errors = {};
+
         const formData = new FormData();
         formData.append("pseudo", this.form.pseudo);
         formData.append("email", this.form.email);
@@ -145,28 +147,22 @@ export default {
           formData.append("avatar", this.avatarFile);
         }
 
-        const response = await fetch("api/auth/inscription", {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          this.errors = data.errors.reduce((acc, err) => {
-            acc[err.field] = err.message;
-            return acc;
-          }, {});
-          return;
-        }
+        const response = await axios.post("api/auth/inscription", formData, {withCredentials: true,});
+        const data = response.data;
 
         this.successMessage = data.message || "Inscription réussie !";
         this.showSuccess = true;
 
       } catch (error) {
-        this.errorMessage = "Une erreur s’est produite.";
-        this.showError = true;
+        if (error.response && error.response.data && error.response.data.errors) {
+          this.errors = error.response.data.errors.reduce((acc, err) => {
+            acc[err.field] = err.message;
+            return acc;
+          }, {});
+        } else {
+          this.errorMessage = "Une erreur s’est produite.";
+          this.showError = true;
+        }
       }
     },
     redirectToLogin() {
