@@ -6,7 +6,7 @@
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content">
           <button class="close-modal" @click="animateClose('registration', $event)">×</button>
-          <Registration v-if="showRegistration" @open-login="showLoginModal"/>
+          <Registration v-if="showRegistration" @open-login="showLoginModal" @close="showRegistration = false"/>
         </div>
       </div>
     </transition>
