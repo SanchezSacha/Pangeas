@@ -83,7 +83,7 @@
         <input type="checkbox" id="terms" v-model="form.cgu_accepted" required />
         <label for="terms">
           Je déclare avoir lu et accepter les
-          <a href="#">Conditions Générales d’Utilisation</a>.
+          <router-link to="/cgu" @click.native="closeModal">Conditions Générales d’Utilisation</router-link>
           <p class="text-error" v-if="errors.cgu_accepted">{{ errors.cgu_accepted }}</p>
         </label>
       </div>
@@ -125,6 +125,9 @@ export default {
     };
   },
   methods: {
+    closeModal() {
+      this.$emit('close');
+    },
     handleAvatar(event) {
       const file = event.target.files[0];
       if (file) {
