@@ -27,7 +27,7 @@
             <img src="/icons/user.svg" alt="Compte" />
             Mon compte
           </li>
-          <li>
+          <li :class="{ active: isActiveRoute('Parametres') }" @click="goToSettings">
             <img src="/icons/cog.svg" alt="Paramètres" />
             Paramètres
           </li>
@@ -91,6 +91,10 @@ export default {
     goToHome() {
       this.isOpen = false;
       this.$router.push({ name: 'Home' });
+    },
+    goToSettings() {
+      this.isOpen = false;
+      this.$router.push({name : 'Parametres'})
     },
     isActiveRoute(name) {
       return this.$route.name === name;

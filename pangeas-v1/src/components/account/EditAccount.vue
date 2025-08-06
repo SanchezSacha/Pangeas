@@ -16,9 +16,9 @@
 
       <div class="col-12 col-md-8">
         <div class="pseudo-section">
-          <input v-if="isEditingPseudo" v-model="form.pseudo" class="pseudo-input" @blur="isEditingPseudo = false" @input="markModified" autofocus/>
-          <span v-else>{{ form.pseudo }}</span>
-          <img src="/icons/pen.svg" class="pen-icon cursor-pointer" @click="isEditingPseudo = true" />
+          <input v-if="isEditingPseudo" v-model="form.pseudo" class="pseudo-input"  @blur="isEditingPseudo = false" @input="markModified" autofocus/>
+          <span @click="isEditingPseudo = true" v-else>{{ form.pseudo }}</span>
+          <img src="/icons/pen.svg" class="pen-icon cursor-pointer"/>
         </div>
 
         <div class="bio-section">
@@ -219,6 +219,12 @@ export default {
   font-size: 1.8rem;
   font-weight: 700;
   margin-top: 1rem;
+  transition: transform 0.2s ease, color 0.2s ease;
+  cursor: pointer;
+}
+
+.pseudo-section:hover {
+  transform: scale(1.05);
 }
 
 .pseudo-input {
@@ -229,6 +235,7 @@ export default {
   border: 2px solid var(--color-brown);
   outline: none;
 }
+
 
 /* Bio */
 .bio-section {
