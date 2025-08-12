@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <Sidebar @open-register="showRegisterModal" @open-login="showLoginModal"/>
+    <Sidebar v-if="!$route.path.startsWith('/admin')" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
@@ -24,6 +24,11 @@
         </div>
       </div>
     </transition>
+    <template>
+      <div class="bg-green-500 text-white p-4 rounded-lg">
+        ✅ Tailwind fonctionne !
+      </div>
+    </template>
   </div>
 </template>
 

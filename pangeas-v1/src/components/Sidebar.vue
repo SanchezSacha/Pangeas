@@ -18,6 +18,10 @@
           </li>
         </ul>
         <ul v-else>
+          <li v-if="user?.role === 'admin'" :class="{ active: isActiveRoute('AdminDashboard') }" @click="goToAdmin">
+            <img src="/icons/house.svg" alt="Dashboard" />
+            Dashboard
+          </li>
           <li :class="{ active: isActiveRoute('Home') }" @click="goToHome">
             <img src="/icons/map.svg" alt="Carte" />
             Carte
@@ -57,7 +61,10 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['isLoggedIn'])
+    ...mapGetters(['isLoggedIn']),
+    user() {
+      return this.$store.state.user;
+    }
   },
   methods: {
     ...mapMutations(['logout']),
@@ -95,6 +102,10 @@ export default {
     goToSettings() {
       this.isOpen = false;
       this.$router.push({name : 'Parametres'})
+    },
+    goToAdmin(){
+      this.isOpen = false;
+      this.$router.push({name : 'AdminDashboard'})
     },
     isActiveRoute(name) {
       return this.$route.name === name;
