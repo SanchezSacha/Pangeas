@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import store from '@/../src/store/index.js';
 import UserAccount from '../components/account/UserAccount.vue';
 import PlaceDetail from "../components/Map/PlaceDetail.vue";
 import SettingsAccount from '../components/settings/SettingsAccount.vue';
@@ -33,23 +34,102 @@ const routes = [
     {
         path: '/cgu',
         name : 'CGU',
-        component: CGU
+        component: CGU,
     },
     {
         path: '/confidentialite',
         name : 'confidentialite',
-        component: Confidentialite
+        component: Confidentialite,
+        meta: { requiresAuth: true }
     },
     {
         path: '/mentions-legales',
         name: 'mentions-legales',
-        component: MentionsLegales
+        component: MentionsLegales,
+        meta: { requiresAuth: true }
+    },
+//////////////////////////////////////////////////// ADMIN ROUTES//////////////////////////////////////////////////////////////////////
+    {
+        path: '/admin',
+        component: () => import('@/layout/AdminLayout.vue'),
+        meta: { requiresAdmin: true },
+        children: [
+            {
+                path: '',
+                redirect: 'dashboard',
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'dashboard',
+                name: 'AdminDashboard',
+                component: () => import('@/admin/AdminDashboard.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'users',
+                name: 'AdminUsers',
+                component: () => import('@/admin/AdminUsers.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: '/admin/users/:id',
+                name: 'UserDetails',
+                component: () => import('@/admin/UserAdminDetails.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: '/admin/users/:id/edit',
+                name: 'UpdateUsersAdmin',
+                component: () => import('@/admin/UpdateUsersAdmin.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'places',
+                name: 'AdminPlaces',
+                component: () => import('@/admin/AdminPlaces.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: '/admin/places/:id',
+                name: 'AdminPlacesDetails',
+                component: () => import('@/admin/AdminPlacesDetails.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: '/admin/places/:id/edit',
+                name: 'AdminPlaceEdit',
+                component: () => import('@/admin/AdminPlaceEdit.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: '/admin/places/add',
+                name: 'AddPlaceAdmin',
+                component: () => import('@/admin/AddPlaceAdmin.vue'),
+                meta: { requiresAdmin: true }
+            },
+        ]
     }
 ];
 
 const router = createRouter({
     history: createWebHistory(),
     routes
+});
+
+router.beforeEach((to, from, next) => {
+    const user = store.state.user;
+
+    if (to.meta.requiresAdmin) {
+        if (!user || user.role !== 'admin') {
+            return next({ path: '/' });
+        }
+    }
+    if (to.meta.requiresAuth) {
+        if (!user) {
+            return next({ path: '/login' });
+        }
+    }
+    next();
 });
 
 export default router;
