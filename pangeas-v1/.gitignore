@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Ignorer le vendor du template SB Admin 2
+public/sb-admin2/vendor/

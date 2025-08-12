@@ -146,11 +146,13 @@ export default {
     }
   },
   mounted() {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const newUser = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
     if (this.user) {
       this.form.pseudo = this.user.pseudo;
       this.form.bio = this.user.bio || '';
-      this.avatarPreview = this.user.avatar_url ? `${apiBaseUrl}${this.user.avatar_url}` : '/img-avatar.jpg';
+      this.avatarPreview = newUser.avatar_url
+          ? `${this.apiBaseUrl}${newUser.avatar_url}`
+          : `${window.location.origin}/img-avatar.jpg`;
     }
   }
 

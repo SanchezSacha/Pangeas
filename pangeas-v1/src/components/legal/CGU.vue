@@ -29,14 +29,12 @@
 
     <section>
       <h2>4. Utilisation responsable</h2>
-      <p>
-        L’utilisateur s’engage à :
-        <ul>
-          <li>Respecter les lieux visités, leur environnement naturel, les animaux et les personnes qui les entretiennent</li>
-          <li>Ne pas utiliser l’application à des fins illégales, frauduleuses ou abusives</li>
-          <li>Ne pas perturber le bon fonctionnement de la plateforme (spam, surcharges, fausses visites, etc.)</li>
-        </ul>
-      </p>
+      <p>L’utilisateur s’engage à :</p>
+      <ul>
+        <li>Respecter les lieux visités, leur environnement naturel, les animaux et les personnes qui les entretiennent</li>
+        <li>Ne pas utiliser l’application à des fins illégales, frauduleuses ou abusives</li>
+        <li>Ne pas perturber le bon fonctionnement de la plateforme (spam, surcharges, fausses visites, etc.)</li>
+      </ul>
     </section>
 
     <section>
@@ -74,13 +72,13 @@
 
     <section>
       <h2>8. Limitations de responsabilité</h2>
+      <p>Le développeur de PANGEAS ne peut être tenu responsable :</p>
+      <ul>
+        <li>Des dommages ou comportements engendrés par des tiers lors d’une visite</li>
+        <li>Des erreurs de données ou de localisation</li>
+        <li>Des interruptions de service</li>
+      </ul>
       <p>
-        Le développeur de PANGEAS ne peut être tenu responsable :
-        <ul>
-          <li>Des dommages ou comportements engendrés par des tiers lors d’une visite</li>
-          <li>Des erreurs de données ou de localisation</li>
-          <li>Des interruptions de service</li>
-        </ul>
         En cas de bug ou d’anomalie, veuillez écrire à : <strong>pangeas@contact.fr</strong>.
       </p>
     </section>
@@ -114,6 +112,7 @@
         Pour toute question ou signalement, vous pouvez écrire à : <strong><a href="mailto:pangeas@contact.fr">pangeas@contact.fr</a></strong>
       </p>
     </section>
+
     <button class="btn back-button" @click="goBack">Retour</button>
   </div>
 </template>
