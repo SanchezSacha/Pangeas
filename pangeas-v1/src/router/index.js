@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import store from '@/../src/store/index.js';
+import store from '../../src/store/index.js';
 import UserAccount from '../components/account/UserAccount.vue';
 import PlaceDetail from "../components/Map/PlaceDetail.vue";
 import SettingsAccount from '../components/settings/SettingsAccount.vue';
