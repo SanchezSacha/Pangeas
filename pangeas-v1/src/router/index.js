@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '../../src/store/index.js';
 import UserAccount from '../components/account/UserAccount.vue';
-import PlaceDetail from "../components/Map/PlaceDetail.vue";
+import PlaceDetail from "../components/map/PlaceDetail.vue";
 import SettingsAccount from '../components/settings/SettingsAccount.vue';
 import CGU from '../components/legal/CGU.vue';
 import Confidentialite from '../components/legal/PolConf.vue';

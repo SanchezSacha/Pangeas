@@ -41,8 +41,8 @@
 
 
 <script>
-import SuccessPopup from "../Modal/SuccessPopup.vue";
-import ErrorPopup from "../Modal/ErrorPopup.vue";
+import SuccessPopup from "../modal/SuccessPopup.vue";
+import ErrorPopup from "../modal/ErrorPopup.vue";
 import axios from "@/axios";
 
 export default {

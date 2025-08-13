@@ -30,8 +30,8 @@
 import {computed, ref} from 'vue';
 import { useStore } from 'vuex';
 import axios from '@/axios';
-import SuccessPopup from "../Modal/SuccessPopup.vue";
-import ErrorPopup from "../Modal/ErrorPopup.vue";
+import SuccessPopup from "../modal/SuccessPopup.vue";
+import ErrorPopup from "../modal/ErrorPopup.vue";
 import router from "../../router/index.js";
 
 export default {

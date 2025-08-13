@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import MapLeaflet from './components/Map/MapLeaflet.vue';
+import MapLeaflet from './components/map/MapLeaflet.vue';
 
 export default {
   name: 'HomeView',
