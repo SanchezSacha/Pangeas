@@ -31,7 +31,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
-import PlaceModal from '../Map/PlaceModal.vue';
+import PlaceModal from '../map/PlaceModal.vue';
 import axios from "@/axios.js";
 
 const store = useStore();
