@@ -24,11 +24,6 @@
         </div>
       </div>
     </transition>
-    <template>
-      <div class="bg-green-500 text-white p-4 rounded-lg">
-        ✅ Tailwind fonctionne !
-      </div>
-    </template>
   </div>
 </template>
 
@@ -75,7 +70,7 @@ export default {
   },
   async mounted() {
     try {
-      const res = await axios.get('http://localhost:3000/accueil');
+      const res = await axios.get('api/accueil');
       this.places = res.data;
 
       const resUser = await axios.get('api/auth/me', { withCredentials: true });

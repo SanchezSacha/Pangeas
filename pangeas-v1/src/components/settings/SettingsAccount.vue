@@ -10,7 +10,7 @@
       <SettingsLegalInfo />
 
       <div class="app-version">
-        Version de l’application : <strong>V1.11.3</strong>
+        Version de l’application : <strong>V1.13.1</strong>
       </div>
     </div>
   </div>
