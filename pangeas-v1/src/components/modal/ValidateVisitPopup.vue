@@ -18,8 +18,8 @@
 
 <script>
 import axios from "@/axios.js";
-import SuccessPopup from "../Modal/SuccessPopup.vue";
-import ErrorPopup from "../Modal/ErrorPopup.vue";
+import SuccessPopup from ".//SuccessPopup.vue";
+import ErrorPopup from ".//ErrorPopup.vue";
 
 export default {
   props: ['placeId', 'userCoords'],

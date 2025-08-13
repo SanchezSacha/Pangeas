@@ -31,8 +31,8 @@
 <script>
 import axios from '@/axios.js';
 import Sidebar from "./components/Sidebar.vue";
-import Registration from "./components/Modal/Registration.vue";
-import Connexion from "./components/Modal/Connexion.vue";
+import Registration from "./components/modal/Registration.vue";
+import Connexion from "./components/modal/Connexion.vue";
 import store from './store';
 
 export default {
