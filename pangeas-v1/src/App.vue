@@ -70,10 +70,10 @@ export default {
   },
   async mounted() {
     try {
-      const res = await axios.get('api/accueil');
+      const res = await axios.get('/api/places');
       this.places = res.data;
 
-      const resUser = await axios.get('api/auth/me', { withCredentials: true });
+      const resUser = await axios.get('/api/auth/me', { withCredentials: true });
       if (resUser.data.success && resUser.data.user) {
         store.commit('setUser', resUser.data.user);
       }
