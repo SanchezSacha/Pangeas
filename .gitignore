@@ -1,0 +1,26 @@
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Dependencies and build outputs, in case commands are run from the repo root
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.npm-cache/
+
+# Root lockfile created by mistake when npm is run outside pangeas-v1
+/package-lock.json

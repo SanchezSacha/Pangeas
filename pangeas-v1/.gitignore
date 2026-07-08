@@ -8,9 +8,16 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
+.npm-cache/
+.vite/
 dist
 dist-ssr
 *.local
+
+# Local environment files
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
@@ -23,5 +30,3 @@ dist-ssr
 *.sln
 *.sw?
 
-# Ignorer le vendor du template SB Admin 2
-public/sb-admin2/vendor/

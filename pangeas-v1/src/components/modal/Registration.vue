@@ -150,7 +150,7 @@ export default {
           formData.append("avatar", this.avatarFile);
         }
 
-        const response = await axios.post("api/auth/inscription", formData, {withCredentials: true,});
+        const response = await axios.post("/api/auth/inscription", formData, {withCredentials: true,});
         const data = response.data;
 
         this.successMessage = data.message || "Inscription réussie !";
