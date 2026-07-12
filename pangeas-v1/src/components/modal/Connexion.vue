@@ -26,6 +26,12 @@
         <a href="#" @click.prevent="$emit('open-register-from-login')">Inscrivez-vous ici</a>
       </p>
 
+      <p class="link-register">
+        <a href="#" @click.prevent="goToForgotPassword">Mot de passe oublie ?</a>
+      </p>
+
+      <p class="text-error" v-if="errors.general">{{ errors.general }}</p>
+
       <button type="submit" class="submit-btn">Connexion</button>
     </form>
   </div>
@@ -80,6 +86,10 @@ export default {
           this.errors = { general: "Une erreur s’est produite." };
         }
       }
+    },
+    goToForgotPassword() {
+      this.$emit('close-login');
+      this.$router.push({ name: 'ForgotPassword' });
     },
     handleSuccessClose() {
       this.showSuccess = false;
