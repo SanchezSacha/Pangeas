@@ -37,7 +37,7 @@
 
 <script>
 import { mapState } from 'vuex';
-import axios from 'axios';
+import axios from "@/axios.js";
 
 export default {
   data() {
@@ -57,7 +57,7 @@ export default {
     async submitForm() {
       this.errors = {};
       try {
-        const response = await axios.put('api/settings/email', {
+        const response = await axios.put('/api/settings/email', {
           newEmail: this.newEmail,
           password: this.password
         });

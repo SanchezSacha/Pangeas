@@ -1,6 +1,6 @@
 <template>
   <div class="container-fluid p-0">
-    <Sidebar v-if="!$route.path.startsWith('/admin')" @open-register="showRegisterModal" @open-login="showLoginModal"/>
+    <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
@@ -48,6 +48,25 @@ export default {
       showRegistration: false,
       showLogin: false,
     };
+  },
+  computed: {
+    isAuthRoute() {
+      return ['ForgotPassword', 'ResetPassword'].includes(this.$route.name);
+    },
+    showSidebar() {
+      return !this.$route.path.startsWith('/admin') && !this.isAuthRoute;
+    }
+  },
+  watch: {
+    '$route.name': {
+      immediate: true,
+      handler() {
+        if (this.isAuthRoute) {
+          this.showLogin = false;
+          this.showRegistration = false;
+        }
+      }
+    }
   },
   methods: {
     showRegisterModal() {

@@ -9,7 +9,11 @@ const instance = axios.create({
 instance.interceptors.response.use(
     response => response,
     error => {
-        if (error.response && error.response.status === 401) {
+        const requestUrl = error.config?.url || '';
+        const isSessionCheck = requestUrl.includes('/api/auth/me');
+        const isAuthRoute = ['ForgotPassword', 'ResetPassword'].includes(router.currentRoute.value.name);
+
+        if (error.response && error.response.status === 401 && !isSessionCheck && !isAuthRoute) {
             store.commit('logout');
             router.push({ name: 'Home' });
         }

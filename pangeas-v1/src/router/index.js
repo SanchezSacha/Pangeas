@@ -7,6 +7,8 @@ import CGU from '../components/legal/CGU.vue';
 import Confidentialite from '../components/legal/PolConf.vue';
 import MentionsLegales from '../components/legal/MentionsLegales.vue';
 import HomeView from "../HomeView.vue";
+import ForgotPassword from "../components/auth/ForgotPassword.vue";
+import ResetPassword from "../components/auth/ResetPassword.vue";
 
 const routes = [
     {
@@ -47,6 +49,16 @@ const routes = [
         name: 'mentions-legales',
         component: MentionsLegales,
         meta: { requiresAuth: true }
+    },
+    {
+        path: '/mot-de-passe-oublie',
+        name: 'ForgotPassword',
+        component: ForgotPassword
+    },
+    {
+        path: '/reset-password/:token?',
+        name: 'ResetPassword',
+        component: ResetPassword
     },
 //////////////////////////////////////////////////// ADMIN ROUTES//////////////////////////////////////////////////////////////////////
     {
@@ -118,6 +130,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     const user = store.state.user;
+
+    if (to.query.token && to.name !== 'ResetPassword') {
+        return next({
+            name: 'ResetPassword',
+            query: { token: to.query.token }
+        });
+    }
 
     if (to.meta.requiresAdmin) {
         if (!user || user.role !== 'admin') {
