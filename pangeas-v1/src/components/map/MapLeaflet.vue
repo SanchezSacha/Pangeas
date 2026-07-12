@@ -30,6 +30,9 @@ export default {
       validationInterval: null,
       popupInstance: null,
       ongoingVisit: null,
+      displayedPlaces: [],
+      clusterMaxZoom: 15,
+      clusterRadius: 48,
     };
   },
   methods: {
@@ -50,6 +53,10 @@ export default {
       this.renderPlaces(places);
     },
     registerMapEvents() {
+      this.map.on('zoomend moveend', () => {
+        this.renderPlaces(this.displayedPlaces, false);
+      });
+
       this.map.on('start-route', (e) => {
         const { from, to, placeId } = e;
 
@@ -91,28 +98,103 @@ export default {
         this.map.setView([47, 2], 6);
       });
     },
-    renderPlaces(places = []) {
+    renderPlaces(places = [], shouldResumeVisit = true) {
       if (!this.map || !this.markersLayer) return;
 
+      this.displayedPlaces = places;
       this.markersLayer.clearLayers();
 
-      places.forEach(place => {
-        const lat = Number(place.coordinates?.lat);
-        const lng = Number(place.coordinates?.lng);
+      this.buildPlaceGroups(places).forEach(group => {
+        if (group.places.length === 1) {
+          this.addPlaceMarker(group.places[0]);
+          return;
+        }
 
-        if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
-
-        const popupContainer = document.createElement('div');
-        const popupApp = createApp(PlaceModal, { place, map: this.map });
-        popupApp.use(store);
-        popupApp.mount(popupContainer);
-
-        L.marker([lat, lng])
-            .addTo(this.markersLayer)
-            .bindPopup(popupContainer);
+        this.addClusterMarker(group);
       });
 
-      this.resumeOngoingVisit();
+      if (shouldResumeVisit) {
+        this.resumeOngoingVisit();
+      }
+    },
+    buildPlaceGroups(places = []) {
+      const validPlaces = places
+          .map(place => ({
+            place,
+            lat: Number(place.coordinates?.lat),
+            lng: Number(place.coordinates?.lng),
+          }))
+          .filter(({ lat, lng }) => Number.isFinite(lat) && Number.isFinite(lng));
+
+      if (this.map.getZoom() >= this.clusterMaxZoom) {
+        return validPlaces.map(({ place, lat, lng }) => ({
+          places: [place],
+          lat,
+          lng,
+          bounds: L.latLngBounds([[lat, lng]])
+        }));
+      }
+
+      return validPlaces.reduce((groups, item) => {
+        const point = this.map.latLngToLayerPoint([item.lat, item.lng]);
+        const existingGroup = groups.find(group => point.distanceTo(group.point) <= this.clusterRadius);
+
+        if (!existingGroup) {
+          groups.push({
+            places: [item.place],
+            lat: item.lat,
+            lng: item.lng,
+            point,
+            bounds: L.latLngBounds([[item.lat, item.lng]])
+          });
+          return groups;
+        }
+
+        existingGroup.places.push(item.place);
+        existingGroup.lat = (existingGroup.lat * (existingGroup.places.length - 1) + item.lat) / existingGroup.places.length;
+        existingGroup.lng = (existingGroup.lng * (existingGroup.places.length - 1) + item.lng) / existingGroup.places.length;
+        existingGroup.point = this.map.latLngToLayerPoint([existingGroup.lat, existingGroup.lng]);
+        existingGroup.bounds.extend([item.lat, item.lng]);
+
+        return groups;
+      }, []);
+    },
+    addPlaceMarker(place) {
+      const lat = Number(place.coordinates?.lat);
+      const lng = Number(place.coordinates?.lng);
+      const popupContainer = document.createElement('div');
+      const popupApp = createApp(PlaceModal, { place, map: this.map });
+
+      popupApp.use(store);
+      popupApp.mount(popupContainer);
+
+      L.marker([lat, lng])
+          .addTo(this.markersLayer)
+          .bindPopup(popupContainer);
+    },
+    addClusterMarker(group) {
+      const clusterIcon = L.divIcon({
+        className: 'place-cluster',
+        html: `<span>${group.places.length}</span>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22],
+      });
+
+      L.marker([group.lat, group.lng], { icon: clusterIcon })
+          .addTo(this.markersLayer)
+          .on('click', () => this.expandCluster(group));
+    },
+    expandCluster(group) {
+      if (!group.bounds.isValid() || group.bounds.getNorthEast().equals(group.bounds.getSouthWest())) {
+        this.map.setView([group.lat, group.lng], this.clusterMaxZoom, { animate: true });
+        return;
+      }
+
+      this.map.fitBounds(group.bounds, {
+        animate: true,
+        padding: [70, 70],
+        maxZoom: this.clusterMaxZoom
+      });
     },
     markVisitAsOngoing(placeId, destinationCoords) {
       this.$store.commit('setCurrentVisit', { place_id: placeId });
