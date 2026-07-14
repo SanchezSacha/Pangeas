@@ -4,7 +4,7 @@
     <router-view :places="places" />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
-        <div class="modal-content">
+        <div class="modal-content registration-modal">
           <button class="close-modal" @click="animateClose('registration', $event)">×</button>
           <Registration v-if="showRegistration" @open-login="showLoginModal" @close="showRegistration = false"/>
         </div>
@@ -133,6 +133,7 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 1.5rem;
   z-index: 1200;
 }
 
@@ -146,6 +147,17 @@ export default {
   overflow-y: auto;
 }
 
+.registration-modal {
+  width: min(100%, 760px);
+  max-width: min(760px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  overflow: hidden auto;
+  background: #fdf9f4;
+  border-radius: 18px;
+  box-shadow: 0 22px 70px rgba(33, 26, 22, 0.24);
+}
+
 .close-modal {
   position: absolute;
   top: 1px;
@@ -155,6 +167,7 @@ export default {
   border: none;
   cursor: pointer;
   color: var(--color-brown);
+  z-index: 2;
 }
 
 .fade-enter-active, .fade-leave-active {
@@ -167,10 +180,30 @@ export default {
 /* RESPONSIVE */
 
 @media (max-width: 768px) {
+  .modal-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+
   .modal-content {
     width: 90%;
     padding: 1.5rem;
     max-width: none;
+  }
+
+  .registration-modal {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .registration-modal .close-modal {
+    top: 0.35rem;
+    right: 0.9rem;
+    font-size: 2.35rem;
   }
 }
 

@@ -1,96 +1,139 @@
 <template>
-  <div class="container">
+  <section class="auth-shell" aria-labelledby="registration-title">
     <SuccessPopup v-if="showSuccess" :message="successMessage" @closed="redirectToLogin"/>
     <ErrorPopup v-if="showError" :message="errorMessage" @closed="showError = false" />
-    <h1 class="form-title">Créer votre compte</h1>
 
-    <form class="form-container" @submit.prevent="submitForm" novalidate>
-      <div class="row align-items-center mb-4">
-        <!-- Avatar -->
-        <div class="col-12 col-md-4 d-flex justify-content-center mb-3 mb-md-0">
-          <div class="avatar-upload">
-            <label for="avatar">
-              <img :src="avatarPreview" alt="Avatar" class="avatar-image" />
-              <input type="file" id="avatar" @change="handleAvatar" hidden />
-              <div class="avatar-hover"></div>
-            </label>
-          </div>
-        </div>
-        <p class="text-error d-md-none mt-2" v-if="errors.avatar">{{ errors.avatar }}</p>
+    <header class="auth-header">
+      <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="auth-logo" />
+      <h1 id="registration-title" class="auth-title">Rejoignez l'aventure</h1>
+      <p class="auth-slogan">Découvrez des lieux insolites et collectionnez vos aventures.</p>
+    </header>
 
-        <!-- Pseudo + Email -->
-        <div class="col-12 col-md-8">
-          <div class="row">
-            <div class="col-12 mb-3">
-              <div class="input-group">
-                <span class="input-group-text">
-                  <img src="/icons/user.svg" alt="Utilisateur" style="width: 18px;" />
-                </span>
-                <input type="text" class="form-control" placeholder="Pseudo *" v-model="form.pseudo" required />
-              </div>
-              <p class="text-error" v-if="errors.pseudo">{{ errors.pseudo }}</p>
-            </div>
-            <div class="col-12">
-              <div class="input-group">
-                <span class="input-group-text">
-                  <img src="/icons/mail.svg" alt="Mail" style="width: 18px;" />
-                </span>
-                <input type="email" class="form-control" placeholder="Adresse mail *" v-model="form.email" required />
-              </div>
-              <p class="text-error" v-if="errors.email">{{ errors.email }}</p>
-            </div>
-          </div>
+    <form class="auth-form" @submit.prevent="submitForm" novalidate>
+      <div class="auth-field">
+        <label class="auth-label" for="pseudo">Nom d'explorateur</label>
+        <div class="auth-control">
+          <img class="auth-icon" src="/icons/user.svg" alt="" aria-hidden="true" />
+          <input
+              class="auth-input"
+              id="pseudo"
+              type="text"
+              v-model="form.pseudo"
+              placeholder="Votre pseudo"
+              autocomplete="username"
+              required
+          />
         </div>
+        <p class="auth-error" v-if="errors.pseudo">{{ errors.pseudo }}</p>
       </div>
 
-      <!-- Bio -->
-      <div class="form-group mb-3">
-        <p class="text-error d-none d-md-block" v-if="errors.avatar">{{ errors.avatar }}</p>
-        <div class="input-group">
-           <span class="input-group-text">
-              <img src="/icons/pen.svg" alt="Stylo" style="width: 18px;" />
-           </span>
-           <textarea class="form-control" placeholder="Je suis..." v-model="form.bio"></textarea>
+      <div class="auth-field">
+        <label class="auth-label" for="email">Adresse e-mail</label>
+        <div class="auth-control">
+          <img class="auth-icon" src="/icons/mail.svg" alt="" aria-hidden="true" />
+          <input
+              class="auth-input"
+              id="email"
+              type="email"
+              v-model="form.email"
+              placeholder="votre@email.com"
+              autocomplete="email"
+              required
+          />
         </div>
-        <p class="text-error" v-if="errors.bio">{{ errors.bio }}</p>
+        <p class="auth-error" v-if="errors.email">{{ errors.email }}</p>
       </div>
 
-      <!-- Passwords -->
-      <div class="row">
-        <div class="col-12 col-md-6 mb-3">
-          <div class="input-group">
-            <span class="input-group-text">
-              <img src="/icons/lock-open.svg" alt="Mot de passe" style="width: 18px;" />
-            </span>
-            <input type="password" class="form-control" placeholder="Mot de passe *" v-model="form.password" required />
-          </div>
-          <p class="text-error" v-if="errors.password">{{ errors.password }}</p>
+      <div class="auth-field">
+        <label class="auth-label" for="password">Mot de passe</label>
+        <div class="auth-control">
+          <img class="auth-icon" src="/icons/lock.svg" alt="" aria-hidden="true" />
+          <input
+              class="auth-input"
+              id="password"
+              :type="showPassword ? 'text' : 'password'"
+              v-model="form.password"
+              autocomplete="new-password"
+              required
+          />
+          <button
+              type="button"
+              class="auth-password-toggle"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              @click="showPassword = !showPassword"
+          >
+            <img
+                class="auth-eye"
+                :src="showPassword ? '/icons/eye.svg' : '/icons/eye-closed.svg'"
+                alt=""
+                aria-hidden="true"
+            />
+          </button>
         </div>
-        <!-- Confirmation Password -->
-        <div class="col-12 col-md-6 mb-3">
-          <div class="input-group">
-            <span class="input-group-text">
-              <img src="/icons/lock.svg" alt="Confirmation mot de passe" style="width: 18px;" />
-            </span>
-            <input type="password" class="form-control" placeholder="Confirmation Mot de passe *" v-model="form.confirmPassword" required />
-          </div>
-          <p class="text-error" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</p>
-        </div>
+        <p class="auth-help">12 caractères minimum</p>
+        <p class="auth-error" v-if="passwordLengthError || errors.password">
+          {{ errors.password || "Le mot de passe doit contenir au moins 12 caractères" }}
+        </p>
       </div>
 
-      <!-- Terms -->
-      <div class="form-group checkbox mb-3">
-        <input type="checkbox" id="terms" v-model="form.cgu_accepted" required />
-        <label for="terms">
+      <div class="auth-field">
+        <label class="auth-label" for="confirmPassword">Confirmation du mot de passe</label>
+        <div class="auth-control">
+          <img class="auth-icon" src="/icons/lock-open.svg" alt="" aria-hidden="true" />
+          <input
+              class="auth-input"
+              id="confirmPassword"
+              :type="showConfirmPassword ? 'text' : 'password'"
+              v-model="form.confirmPassword"
+              autocomplete="new-password"
+              required
+          />
+          <button
+              type="button"
+              class="auth-password-toggle"
+              :aria-label="showConfirmPassword ? 'Masquer la confirmation' : 'Afficher la confirmation'"
+              @click="showConfirmPassword = !showConfirmPassword"
+          >
+            <img
+                class="auth-eye"
+                :src="showConfirmPassword ? '/icons/eye.svg' : '/icons/eye-closed.svg'"
+                alt=""
+                aria-hidden="true"
+            />
+          </button>
+        </div>
+        <p class="auth-error" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</p>
+      </div>
+
+      <div class="auth-terms">
+        <input
+            class="auth-checkbox"
+            type="checkbox"
+            id="terms"
+            v-model="form.cgu_accepted"
+            required
+        />
+        <label class="auth-terms-label" for="terms">
           Je déclare avoir lu et accepter les
-          <router-link to="/cgu" @click.native="closeModal">Conditions Générales d’Utilisation</router-link>
-          <p class="text-error" v-if="errors.cgu_accepted">{{ errors.cgu_accepted }}</p>
+          <router-link class="auth-link" to="/cgu" @click="closeModal">
+            Conditions Générales d'Utilisation
+          </router-link>
         </label>
       </div>
+      <p class="auth-error auth-terms-error" v-if="errors.cgu_accepted">{{ errors.cgu_accepted }}</p>
 
-      <button type="submit" class="submit-btn" :disabled="showSuccess">Créer mon compte</button>
+      <button type="submit" class="auth-submit" :disabled="showSuccess">
+        Créer mon compte
+      </button>
     </form>
-  </div>
+
+    <footer class="auth-footer">
+      <p class="auth-footer-text">
+        Vous avez déjà un compte ?
+        <a class="auth-link" href="#" @click.prevent="$emit('open-login')">Connectez-vous</a>
+      </p>
+    </footer>
+  </section>
 </template>
 
 
@@ -115,25 +158,23 @@ export default {
         confirmPassword: "",
         cgu_accepted: false,
       },
-      avatarFile: null,
-      avatarPreview: "/img-avatar.jpg",
       errors: {},
       showSuccess: false,
       successMessage: "",
       showError: false,
-      errorMessage: ""
+      errorMessage: "",
+      showPassword: false,
+      showConfirmPassword: false
     };
+  },
+  computed: {
+    passwordLengthError() {
+      return this.form.password.length > 0 && this.form.password.length < 12;
+    }
   },
   methods: {
     closeModal() {
       this.$emit('close');
-    },
-    handleAvatar(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.avatarFile = file;
-        this.avatarPreview = URL.createObjectURL(file);
-      }
     },
     async submitForm() {
       try {
@@ -146,9 +187,6 @@ export default {
         formData.append("confirmPassword", this.form.confirmPassword);
         formData.append("cgu_accepted", this.form.cgu_accepted ? "true" : "false");
         formData.append("bio", this.form.bio || "");
-        if (this.avatarFile) {
-          formData.append("avatar", this.avatarFile);
-        }
 
         const response = await axios.post("/api/auth/inscription", formData, {withCredentials: true,});
         const data = response.data;
@@ -163,7 +201,7 @@ export default {
             return acc;
           }, {});
         } else {
-          this.errorMessage = "Une erreur s’est produite.";
+          this.errorMessage = "Une erreur s'est produite.";
           this.showError = true;
         }
       }
@@ -176,53 +214,4 @@ export default {
 };
 </script>
 
-<style src="../../assets/css/form.css"></style>
-<style scoped>
-.avatar-upload {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.avatar-upload label {
-  position: relative;
-  display: inline-block;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid var(--color-brown);
-  cursor: pointer;
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.avatar-hover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.3);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.avatar-upload label:hover .avatar-hover {
-  opacity: 1;
-}
-
-textarea {
-  min-height: 90px;
-  resize: none;
-}
-</style>
+<style src="../../assets/css/auth.css"></style>
