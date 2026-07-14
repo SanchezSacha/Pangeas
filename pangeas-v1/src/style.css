@@ -30,6 +30,16 @@ html, body {
   --color-white: #ffffff;
   --color-black: #000000;
 
+  /* COULEURS AUTH V2 */
+  --color-auth-surface: #fdf9f4;
+  --color-auth-surface-soft: #f7f3ee;
+  --color-auth-primary: #442a22;
+  --color-auth-button: #6b463b;
+  --color-auth-muted: #665852;
+  --color-auth-line: #827470;
+  --color-auth-text: #1c1c19;
+  --color-auth-error: #d66f6d;
+
   /* POLICES */
   --font-logo: 'Playfair Display', serif;
   --font-title: 'Merriweather', serif;
