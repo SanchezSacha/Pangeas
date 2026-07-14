@@ -1,52 +1,149 @@
 <template>
-  <main class="auth-page">
-    <section class="auth-panel">
-      <h1 class="form-title">Nouveau mot de passe</h1>
-      <p class="auth-text">
-        Choisissez un nouveau mot de passe pour recuperer l'acces a votre compte.
-      </p>
-
-      <form class="form-container" @submit.prevent="submitForm" novalidate>
-        <div class="input-duo">
-          <div class="input-group">
-            <span class="input-group-text">
-              <img src="/icons/lock.svg" alt="Mot de passe" style="width: 18px;" />
-            </span>
-            <input
-                type="password"
-                class="form-control"
-                placeholder="Nouveau mot de passe *"
-                v-model="form.password"
-                required
-            />
+  <main class="auth-standalone-page">
+    <div class="auth-split">
+      <aside class="auth-split-visual" aria-hidden="true">
+        <div class="auth-expedition-card">
+          <img
+              class="auth-expedition-image"
+              src="/auth/reset-password-key.png"
+              alt=""
+              aria-hidden="true"
+          />
+          <div class="auth-expedition-steps">
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">1</span>
+              <span class="auth-step-icon">
+                <img src="/icons/link.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Lien validé</strong>
+                <p>Vous êtes au bon point de départ.</p>
+              </div>
+            </div>
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">2</span>
+              <span class="auth-step-icon">
+                <img src="/icons/key-round.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Nouveau mot de passe</strong>
+                <p>Vous choisissez une nouvelle clé.</p>
+              </div>
+            </div>
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">3</span>
+              <span class="auth-step-icon">
+                <img src="/icons/lock-keyhole.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Accès sécurisé</strong>
+                <p>Le compte est prêt pour la suite.</p>
+              </div>
+            </div>
           </div>
-          <p class="text-error" v-if="errors.password">{{ errors.password }}</p>
+        </div>
+        <div class="auth-visual-copy">
+          <p class="auth-visual-kicker">Nouvelle étape</p>
+          <h2>Sécurisez votre prochaine exploration.</h2>
+          <p>Choisissez un mot de passe solide avant de reprendre votre route.</p>
+        </div>
+      </aside>
 
-          <div class="input-group">
-            <span class="input-group-text">
-              <img src="/icons/lock-open.svg" alt="Confirmation" style="width: 18px;" />
-            </span>
-            <input
-                type="password"
-                class="form-control"
-                placeholder="Confirmer le mot de passe *"
-                v-model="form.confirmPassword"
-                required
-            />
-          </div>
-          <p class="text-error" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</p>
-          <p class="text-error" v-if="errors.token">{{ errors.token }}</p>
-          <p class="text-error" v-if="errors.general">{{ errors.general }}</p>
-          <p class="success-message" v-if="successMessage">{{ successMessage }}</p>
+      <section class="auth-shell auth-recovery-shell" aria-labelledby="reset-password-title">
+        <header class="auth-header auth-recovery-header">
+          <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="auth-logo" />
+          <h1 id="reset-password-title" class="auth-title">Nouveau mot de passe</h1>
+          <p class="auth-slogan">
+            Choisissez un nouveau mot de passe pour récupérer l'accès à votre compte.
+          </p>
+        </header>
+
+        <div class="auth-alert auth-success-alert" v-if="successMessage" role="status">
+          <span class="auth-alert-icon" aria-hidden="true">✓</span>
+          <p>{{ successMessage }}</p>
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="isSubmitting || !token">
-          {{ isSubmitting ? 'Mise a jour...' : 'Modifier le mot de passe' }}
-        </button>
-      </form>
+        <div class="auth-alert" v-if="errors.token || errors.general" role="alert">
+          <span class="auth-alert-icon" aria-hidden="true">!</span>
+          <p>{{ errors.token || errors.general }}</p>
+        </div>
 
-      <router-link class="auth-link" :to="{ name: 'Home' }">Retour a l'accueil</router-link>
-    </section>
+        <form class="auth-form auth-recovery-form" @submit.prevent="submitForm" novalidate>
+          <div class="auth-field">
+            <label class="auth-label" for="reset-password">Nouveau mot de passe</label>
+            <div class="auth-control">
+              <img class="auth-icon" src="/icons/lock.svg" alt="" aria-hidden="true" />
+              <input
+                  class="auth-input"
+                  id="reset-password"
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="form.password"
+                  autocomplete="new-password"
+                  required
+              />
+              <button
+                  type="button"
+                  class="auth-password-toggle"
+                  :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+                  @click="showPassword = !showPassword"
+              >
+                <img
+                    class="auth-eye"
+                    :src="showPassword ? '/icons/eye.svg' : '/icons/eye-closed.svg'"
+                    alt=""
+                    aria-hidden="true"
+                />
+              </button>
+            </div>
+            <p class="auth-help">12 caractères minimum</p>
+            <p class="auth-error" v-if="passwordLengthError || errors.password">
+              {{ errors.password || "Le mot de passe doit contenir au moins 12 caractères" }}
+            </p>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="reset-confirm-password">Confirmation du mot de passe</label>
+            <div class="auth-control">
+              <img class="auth-icon" src="/icons/lock-open.svg" alt="" aria-hidden="true" />
+              <input
+                  class="auth-input"
+                  id="reset-confirm-password"
+                  :type="showConfirmPassword ? 'text' : 'password'"
+                  v-model="form.confirmPassword"
+                  autocomplete="new-password"
+                  required
+              />
+              <button
+                  type="button"
+                  class="auth-password-toggle"
+                  :aria-label="showConfirmPassword ? 'Masquer la confirmation' : 'Afficher la confirmation'"
+                  @click="showConfirmPassword = !showConfirmPassword"
+              >
+                <img
+                    class="auth-eye"
+                    :src="showConfirmPassword ? '/icons/eye.svg' : '/icons/eye-closed.svg'"
+                    alt=""
+                    aria-hidden="true"
+                />
+              </button>
+            </div>
+            <p class="auth-error" v-if="errors.confirmPassword">{{ errors.confirmPassword }}</p>
+          </div>
+
+          <button type="submit" class="auth-submit auth-recovery-submit" :disabled="isSubmitting || !token">
+            {{ isSubmitting ? 'Mise à jour...' : 'Modifier le mot de passe' }}
+            <span class="auth-submit-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <footer class="auth-footer auth-recovery-footer">
+          <p class="auth-footer-text">
+            Vous avez retrouvé votre accès ?
+            <router-link class="auth-link" :to="{ name: 'Home' }">Retour à l'accueil</router-link>
+          </p>
+        </footer>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -63,18 +160,23 @@ export default {
       },
       errors: {},
       successMessage: "",
-      isSubmitting: false
+      isSubmitting: false,
+      showPassword: false,
+      showConfirmPassword: false
     };
   },
   computed: {
     token() {
       return this.$route.query.token || this.$route.params.token || "";
+    },
+    passwordLengthError() {
+      return this.form.password.length > 0 && this.form.password.length < 12;
     }
   },
   mounted() {
     if (!this.token) {
       this.errors = {
-        token: "Le lien de reinitialisation est invalide ou incomplet."
+        token: "Le lien de réinitialisation est invalide ou incomplet."
       };
     }
   },
@@ -85,13 +187,18 @@ export default {
 
       if (!this.token) {
         this.errors = {
-          token: "Le lien de reinitialisation est invalide ou incomplet."
+          token: "Le lien de réinitialisation est invalide ou incomplet."
         };
         return;
       }
 
       if (!this.form.password) {
         this.errors = { password: "Le nouveau mot de passe est obligatoire." };
+        return;
+      }
+
+      if (this.form.password.length < 12) {
+        this.errors = { password: "Le mot de passe doit contenir au moins 12 caractères." };
         return;
       }
 
@@ -115,7 +222,7 @@ export default {
             { headers: { "Content-Type": "application/json" } }
         );
 
-        this.successMessage = "Votre mot de passe a bien ete modifie.";
+        this.successMessage = "Votre mot de passe a bien été modifié.";
         setTimeout(() => {
           this.$router.push({ name: "Home" });
         }, 1200);
@@ -138,47 +245,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.auth-page {
-  min-height: calc(100vh - 2rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  background: var(--color-beige);
-}
-
-.auth-panel {
-  width: min(540px, 100%);
-  color: var(--color-brown);
-}
-
-.auth-text {
-  margin-bottom: 1.5rem;
-  text-align: center;
-  line-height: 1.5;
-}
-
-.auth-link {
-  display: block;
-  margin-top: 1.25rem;
-  color: var(--color-blue);
-  font-weight: bold;
-  text-align: center;
-}
-
-.submit-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.success-message {
-  color: var(--color-green);
-  font-weight: bold;
-  line-height: 1.4;
-  margin: 0;
-  text-align: center;
-}
-</style>
-
-<style src="../../assets/css/form.css"></style>
+<style src="../../assets/css/auth.css"></style>

@@ -12,7 +12,7 @@
     </transition>
     <transition name="fade">
       <div class="modal-overlay" v-if="showLogin">
-        <div class="modal-content">
+        <div class="modal-content login-modal">
           <button class="close-modal" @click="animateClose('login', $event)">×</button>
           <Connexion
               @open-register-from-login="() => {
@@ -158,6 +158,18 @@ export default {
   box-shadow: 0 22px 70px rgba(33, 26, 22, 0.24);
 }
 
+.login-modal {
+  width: min(100%, 540px);
+  max-width: min(540px, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  overflow: hidden auto;
+  background: #fdf9f4;
+  border: 1px solid rgba(212, 195, 190, 0.55);
+  border-radius: 18px;
+  box-shadow: 0 22px 70px rgba(33, 26, 22, 0.18);
+}
+
 .close-modal {
   position: absolute;
   top: 1px;
@@ -200,7 +212,17 @@ export default {
     border-radius: 0;
   }
 
-  .registration-modal .close-modal {
+  .login-modal {
+    width: 100%;
+    max-width: none;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .registration-modal .close-modal,
+  .login-modal .close-modal {
     top: 0.35rem;
     right: 0.9rem;
     font-size: 2.35rem;
