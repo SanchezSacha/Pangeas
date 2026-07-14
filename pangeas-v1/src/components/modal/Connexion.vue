@@ -1,46 +1,93 @@
 <template>
-  <div class="container">
+  <section class="auth-shell auth-login-shell" aria-labelledby="login-title">
     <SuccessPopup v-if="showSuccess" :message="successMessage" @closed="handleSuccessClose"/>
-    <h1 class="form-title">Connexion</h1>
-    <form class="form-container" @submit.prevent="submitForm()" novalidate>
-      <div class="input-duo">
-        <div class="input-group">
-          <span class="input-group-text">
-            <img src="/icons/mail.svg" alt="Mail" style="width: 18px;" />
-          </span>
-          <input type="email" class="form-control" placeholder="Adresse mail *" v-model="form.email" required />
-        </div>
-        <p class="text-error" v-if="errors.email">{{ errors.email }}</p>
 
-        <div class="input-group">
-          <span class="input-group-text">
-            <img src="/icons/lock.svg" alt="Mot de passe" style="width: 18px;" />
-          </span>
-          <input type="password" class="form-control" placeholder="Mot de passe *" v-model="form.password" required />
+    <header class="auth-header auth-login-header">
+      <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="auth-logo" />
+      <h1 id="login-title" class="auth-title">Bon retour parmi nous</h1>
+      <p class="auth-slogan">Connectez-vous pour poursuivre votre aventure.</p>
+    </header>
+
+    <div class="auth-alert" v-if="errors.general" role="alert">
+      <span class="auth-alert-icon" aria-hidden="true">!</span>
+      <p>{{ errors.general }}</p>
+    </div>
+
+    <form class="auth-form auth-login-form" @submit.prevent="submitForm()" novalidate>
+      <div class="auth-field">
+        <label class="auth-label" for="login-email">Adresse e-mail</label>
+        <div class="auth-control auth-login-control">
+          <input
+              class="auth-input"
+              id="login-email"
+              type="email"
+              v-model="form.email"
+              placeholder="test@gmail.com"
+              autocomplete="email"
+              required
+          />
+          <span class="auth-symbol" aria-hidden="true">@</span>
         </div>
-        <p class="text-error" v-if="errors.password">{{ errors.password }}</p>
+        <p class="auth-error" v-if="errors.email">{{ errors.email }}</p>
       </div>
 
-      <p class="link-register mt-4">
-        Vous n’avez pas de compte ?
-        <a href="#" @click.prevent="$emit('open-register-from-login')">Inscrivez-vous ici</a>
-      </p>
+      <div class="auth-field">
+        <div class="auth-label-row">
+          <label class="auth-label" for="login-password">Mot de passe</label>
+          <a class="auth-forgot-link" href="#" @click.prevent="goToForgotPassword">Oublié ?</a>
+        </div>
+        <div class="auth-control auth-login-control">
+          <input
+              class="auth-input"
+              id="login-password"
+              :type="showPassword ? 'text' : 'password'"
+              v-model="form.password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+          />
+          <button
+              type="button"
+              class="auth-password-toggle"
+              :aria-label="showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'"
+              @click="showPassword = !showPassword"
+          >
+            <img
+                class="auth-eye"
+                :src="showPassword ? '/icons/eye.svg' : '/icons/eye-closed.svg'"
+                alt=""
+                aria-hidden="true"
+            />
+          </button>
+        </div>
+        <p class="auth-error" v-if="errors.password">{{ errors.password }}</p>
+      </div>
 
-      <p class="link-register">
-        <a href="#" @click.prevent="goToForgotPassword">Mot de passe oublie ?</a>
-      </p>
-
-      <p class="text-error" v-if="errors.general">{{ errors.general }}</p>
-
-      <button type="submit" class="submit-btn">Connexion</button>
+      <button type="submit" class="auth-submit auth-login-submit" :disabled="showSuccess">
+        Se connecter
+        <span class="auth-submit-arrow" aria-hidden="true">→</span>
+      </button>
     </form>
-  </div>
+
+    <footer class="auth-footer auth-login-footer">
+      <div class="auth-separator" aria-hidden="true">
+        <span></span>
+        <strong>OU</strong>
+        <span></span>
+      </div>
+      <p class="auth-footer-text">
+        Vous n'avez pas de compte ?
+        <a class="auth-link" href="#" @click.prevent="$emit('open-register-from-login')">Inscrivez-vous</a>
+      </p>
+    </footer>
+  </section>
 </template>
 
 <script>
 import SuccessPopup from "./SuccessPopup.vue";
 import { mapMutations } from 'vuex';
 import axios from "@/axios.js";
+
 export default {
   name: "Connexion",
   components: { SuccessPopup },
@@ -52,7 +99,8 @@ export default {
       },
       errors: {},
       successMessage: "",
-      showSuccess: false
+      showSuccess: false,
+      showPassword: false
     };
   },
   methods: {
@@ -83,7 +131,7 @@ export default {
             return acc;
           }, {});
         } else {
-          this.errors = { general: "Une erreur s’est produite." };
+          this.errors = { general: "Identifiants incorrects. Veuillez vérifier votre email et mot de passe." };
         }
       }
     },
@@ -96,16 +144,7 @@ export default {
       this.$emit('close-login');
     }
   }
-
 };
 </script>
 
-<style scoped>
-
-p{
-  text-align: center;
-}
-
-</style>
-
-<style src="../../assets/css/form.css"></style>
+<style src="../../assets/css/auth.css"></style>

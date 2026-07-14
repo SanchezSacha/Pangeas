@@ -1,31 +1,105 @@
 <template>
-  <main class="auth-page">
-    <section class="auth-panel">
-      <h1 class="form-title">Mot de passe oublie</h1>
-      <p class="auth-text">
-        Indiquez l'adresse mail de votre compte. Si elle existe, un lien de reinitialisation vous sera envoyé.
-      </p>
-
-      <form class="form-container" @submit.prevent="submitForm" novalidate>
-        <div class="input-duo">
-          <div class="input-group">
-            <span class="input-group-text">
-              <img src="/icons/mail.svg" alt="Mail" style="width: 18px;" />
-            </span>
-            <input type="email" class="form-control" placeholder="Adresse mail *" v-model.trim="email" required/>
+  <main class="auth-standalone-page">
+    <div class="auth-split">
+      <aside class="auth-split-visual" aria-hidden="true">
+        <div class="auth-expedition-card">
+          <img
+              class="auth-expedition-image"
+              src="/auth/forgot-password-explorer.png"
+              alt=""
+              aria-hidden="true"
+          />
+          <div class="auth-expedition-steps">
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">1</span>
+              <span class="auth-step-icon">
+                <img src="/icons/mail-check.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Entrer l'e-mail</strong>
+                <p>On retrouve votre carnet.</p>
+              </div>
+            </div>
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">2</span>
+              <span class="auth-step-icon">
+                <img src="/icons/link.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Recevoir le lien</strong>
+                <p>Un passage sécurisé arrive.</p>
+              </div>
+            </div>
+            <div class="auth-expedition-step">
+              <span class="auth-step-number">3</span>
+              <span class="auth-step-icon">
+                <img src="/icons/route.svg" alt="" aria-hidden="true" />
+              </span>
+              <div>
+                <strong>Reprendre la route</strong>
+                <p>Votre accès est restauré.</p>
+              </div>
+            </div>
           </div>
-          <p class="text-error" v-if="errors.email">{{ errors.email }}</p>
-          <p class="text-error" v-if="errors.general">{{ errors.general }}</p>
-          <p class="success-message" v-if="successMessage">{{ successMessage }}</p>
+        </div>
+        <div class="auth-visual-copy">
+          <p class="auth-visual-kicker">Carnet de route</p>
+          <h2>Retrouvez le chemin vers votre compte.</h2>
+          <p>Un lien sécurisé vous permettra de repartir avec un nouveau mot de passe.</p>
+        </div>
+      </aside>
+
+      <section class="auth-shell auth-recovery-shell" aria-labelledby="forgot-password-title">
+        <header class="auth-header auth-recovery-header">
+          <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="auth-logo" />
+          <h1 id="forgot-password-title" class="auth-title">Mot de passe oublié ?</h1>
+          <p class="auth-slogan">
+            Indiquez l'adresse e-mail liée à votre compte. Si elle existe, nous vous enverrons un lien de réinitialisation.
+          </p>
+        </header>
+
+        <div class="auth-alert auth-success-alert" v-if="successMessage" role="status">
+          <span class="auth-alert-icon" aria-hidden="true">✓</span>
+          <p>{{ successMessage }}</p>
         </div>
 
-        <button type="submit" class="submit-btn" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien' }}
-        </button>
-      </form>
+        <div class="auth-alert" v-if="errors.general" role="alert">
+          <span class="auth-alert-icon" aria-hidden="true">!</span>
+          <p>{{ errors.general }}</p>
+        </div>
 
-      <router-link class="auth-link" :to="{ name: 'Home' }">Retour a l'accueil</router-link>
-    </section>
+        <form class="auth-form auth-recovery-form" @submit.prevent="submitForm" novalidate>
+          <div class="auth-field">
+            <label class="auth-label" for="forgot-email">Adresse e-mail</label>
+            <div class="auth-control auth-login-control">
+              <input
+                  class="auth-input"
+                  id="forgot-email"
+                  type="email"
+                  v-model.trim="email"
+                  placeholder="votre@email.com"
+                  autocomplete="email"
+                  required
+              />
+              <span class="auth-symbol" aria-hidden="true">@</span>
+            </div>
+            <p class="auth-error" v-if="errors.email">{{ errors.email }}</p>
+          </div>
+
+          <button type="submit" class="auth-submit auth-recovery-submit" :disabled="isSubmitting">
+            {{ isSubmitting ? 'Envoi en cours...' : 'Envoyer le lien' }}
+            <span class="auth-submit-arrow" aria-hidden="true">→</span>
+          </button>
+        </form>
+
+        <footer class="auth-footer auth-recovery-footer">
+          <p class="auth-footer-text">
+            Vous vous souvenez de votre mot de passe ?
+            <router-link class="auth-link" :to="{ name: 'Home' }">Retour à l'accueil</router-link>
+          </p>
+        </footer>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -48,7 +122,7 @@ export default {
       this.successMessage = "";
 
       if (!this.email) {
-        this.errors = { email: "L'adresse mail est obligatoire." };
+        this.errors = { email: "L'adresse e-mail est obligatoire." };
         return;
       }
 
@@ -62,7 +136,7 @@ export default {
         );
 
         this.email = "";
-        this.successMessage = "Si un compte existe avec cette adresse, un e-mail de reinitialisation a ete envoye.";
+        this.successMessage = "Si un compte existe avec cette adresse, un e-mail de réinitialisation a été envoyé.";
       } catch (error) {
         if (error.response?.data?.errors) {
           this.errors = error.response.data.errors.reduce((acc, err) => {
@@ -82,47 +156,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.auth-page {
-  min-height: calc(100vh - 2rem);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem 1rem;
-  background: var(--color-beige);
-}
-
-.auth-panel {
-  width: min(540px, 100%);
-  color: var(--color-brown);
-}
-
-.auth-text {
-  margin-bottom: 1.5rem;
-  text-align: center;
-  line-height: 1.5;
-}
-
-.auth-link {
-  display: block;
-  margin-top: 1.25rem;
-  color: var(--color-blue);
-  font-weight: bold;
-  text-align: center;
-}
-
-.submit-btn:disabled {
-  cursor: not-allowed;
-  opacity: 0.7;
-}
-
-.success-message {
-  color: var(--color-green);
-  font-weight: bold;
-  line-height: 1.4;
-  margin: 0;
-  text-align: center;
-}
-</style>
-
-<style src="../../assets/css/form.css"></style>
+<style src="../../assets/css/auth.css"></style>
