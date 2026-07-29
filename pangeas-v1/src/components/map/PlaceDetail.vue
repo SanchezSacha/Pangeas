@@ -37,7 +37,7 @@
 
     <div class="place-content">
       <section class="place-intro">
-        <p class="eyebrow">Détail du lieu</p>
+        <p class="eyebrow">Détails du lieu</p>
         <h1 id="place-title">{{ place.name }}</h1>
 
         <div class="meta-list">
