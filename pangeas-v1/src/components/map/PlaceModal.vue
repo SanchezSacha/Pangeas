@@ -1,6 +1,6 @@
 <template>
   <div class="popup-card">
-    <button class="popup-fav" @click="toggleFavorite" :disabled="!isLoggedIn" :class="{ 'fav-disabled': !isLoggedIn }">
+    <button class="popup-fav" @click="toggleFavorite" :disabled="!isLoggedIn" :class="{ active: isFavorite, 'fav-disabled': !isLoggedIn }">
       <i :class="favoriteIconClass + ' popup-icon'"></i>
     </button>
 

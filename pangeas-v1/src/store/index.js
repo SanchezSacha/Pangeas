@@ -25,15 +25,17 @@ export default createStore({
             state.currentVisit = null;
         },
         setFavorites(state, favorites) {
-            state.favorites = favorites;
+            state.favorites = favorites.map(id => String(id));
         },
         addFavorite(state, placeId) {
-            if (!state.favorites.includes(placeId)) {
-                state.favorites.push(placeId);
+            const normalizedPlaceId = String(placeId);
+            if (!state.favorites.includes(normalizedPlaceId)) {
+                state.favorites.push(normalizedPlaceId);
             }
         },
         removeFavorite(state, placeId) {
-            state.favorites = state.favorites.filter(id => id !== placeId);
+            const normalizedPlaceId = String(placeId);
+            state.favorites = state.favorites.filter(id => String(id) !== normalizedPlaceId);
         },
         setVisitPlaceFromDetail(state, place) {
             state.visitPlaceFromDetail = place;
@@ -47,7 +49,7 @@ export default createStore({
         userPseudo: state => state.user?.pseudo || '',
         userPosition: state => state.userPosition,
         isFavorite: (state) => (placeId) => {
-            return state.favorites.includes(placeId);
+            return state.favorites.map(id => String(id)).includes(String(placeId));
         }
     }
 });
