@@ -15,7 +15,7 @@
         {{ isCurrentPlace ? 'Consulter l’itinéraire' : 'Visiter' }}
       </button>
       <button v-if="isCurrentPlace" class="action-button danger" @click="cancelVisit">Annuler</button>
-      <button class="action-button" @click="goToDetail">Détail</button>
+      <button class="action-button" @click="goToDetail">Détails</button>
     </div>
 
     <p v-if="!isLoggedIn" class="popup-message error">

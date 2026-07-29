@@ -14,6 +14,61 @@ import store from '../../store';
 import { createApp } from 'vue';
 import axios from '@/axios';
 
+const placeMarkerTypes = {
+  nature: {
+    label: 'Nature',
+    icon: 'fa-solid fa-tree',
+    className: 'nature',
+  },
+  historique: {
+    label: 'Historique',
+    icon: 'fa-solid fa-landmark',
+    className: 'historic',
+  },
+  historical: {
+    label: 'Historique',
+    icon: 'fa-solid fa-landmark',
+    className: 'historic',
+  },
+  urbain: {
+    label: 'Urbain',
+    icon: 'fa-solid fa-building',
+    className: 'urban',
+  },
+  urban: {
+    label: 'Urbain',
+    icon: 'fa-solid fa-building',
+    className: 'urban',
+  },
+  frisson: {
+    label: 'Frisson',
+    icon: 'fa-solid fa-ghost',
+    className: 'thrill',
+  },
+  spooky: {
+    label: 'Frisson',
+    icon: 'fa-solid fa-ghost',
+    className: 'thrill',
+  },
+  secret: {
+    label: 'Secret',
+    icon: 'fa-solid fa-question',
+    className: 'secret',
+  },
+};
+
+const fallbackMarkerType = {
+  label: 'Lieu',
+  icon: 'fa-solid fa-location-dot',
+  className: 'default',
+};
+
+const normalizeCategory = (category = '') => String(category)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
 export default {
   name: 'MapLeaflet',
   props: {
@@ -162,13 +217,25 @@ export default {
     addPlaceMarker(place) {
       const lat = Number(place.coordinates?.lat);
       const lng = Number(place.coordinates?.lng);
+      const markerType = placeMarkerTypes[normalizeCategory(place.category)] || fallbackMarkerType;
       const popupContainer = document.createElement('div');
       const popupApp = createApp(PlaceModal, { place, map: this.map });
+      const markerIcon = L.divIcon({
+        className: `place-marker place-marker-${markerType.className}`,
+        html: `<span class="place-marker-pin" aria-hidden="true"><i class="${markerType.icon}"></i></span>`,
+        iconSize: [44, 50],
+        iconAnchor: [22, 46],
+        popupAnchor: [0, -42],
+      });
 
       popupApp.use(store);
       popupApp.mount(popupContainer);
 
-      L.marker([lat, lng])
+      L.marker([lat, lng], {
+        icon: markerIcon,
+        title: `${place.name || 'Lieu'} - ${markerType.label}`,
+        keyboard: true,
+      })
           .addTo(this.markersLayer)
           .bindPopup(popupContainer);
     },
