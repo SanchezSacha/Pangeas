@@ -1,5 +1,9 @@
 <template>
   <div class="cgu-container">
+    <button class="legal-back-top" type="button" aria-label="Retour" @click="goBack">
+      <img src="/icons/arrow-left.svg" alt="" aria-hidden="true" />
+    </button>
+
     <h1 class="text-center">Conditions Générales d’Utilisation</h1>
     <p class="date-update text-center pb-4"><strong>Dernière mise à jour : 21 août 2025</strong></p>
 
@@ -120,6 +124,9 @@
 <script>
 export default {
   name: 'Cgu',
+  mounted() {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  },
   methods: {
     goBack() {
       this.$router.go(-1)
@@ -130,10 +137,38 @@ export default {
 
 <style scoped>
 .cgu-container {
+  min-height: 100vh;
   background-color: var(--color-beige);
   color: var(--color-brown);
-  padding: 2rem;
+  padding: 5.25rem 2rem calc(7rem + env(safe-area-inset-bottom));
   line-height: 1.7;
+}
+
+.legal-back-top {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  background: rgba(253, 249, 244, 0.92);
+  border: 1px solid rgba(212, 195, 190, 0.65);
+  box-shadow: 0 8px 24px rgba(68, 42, 34, 0.12);
+  backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.legal-back-top:hover {
+  background: #f7f3ee;
+  transform: translateX(-2px);
+}
+
+.legal-back-top img {
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 h1, h2, h3 {
@@ -162,5 +197,11 @@ h1, h2, h3 {
 a {
   color: var(--color-brown);
   text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .cgu-container {
+    padding-inline: 1.25rem;
+  }
 }
 </style>
