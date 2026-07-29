@@ -1,7 +1,8 @@
 <template>
-  <div class="container-fluid p-0">
+  <div class="container-fluid p-0 app-shell" :class="{ 'has-mobile-bottom-nav': showMobileBottomNav }">
     <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
+    <MobileBottomNav v-if="showMobileBottomNav" />
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content registration-modal">
@@ -31,6 +32,7 @@
 <script>
 import axios from '@/axios.js';
 import Sidebar from "./components/Sidebar.vue";
+import MobileBottomNav from "./components/MobileBottomNav.vue";
 import Registration from "./components/modal/Registration.vue";
 import Connexion from "./components/modal/Connexion.vue";
 import store from './store';
@@ -39,6 +41,7 @@ export default {
   name: 'App',
   components: {
     Sidebar,
+    MobileBottomNav,
     Registration,
     Connexion
   },
@@ -54,6 +57,9 @@ export default {
       return ['ForgotPassword', 'ResetPassword'].includes(this.$route.name);
     },
     showSidebar() {
+      return !this.$route.path.startsWith('/admin') && !this.isAuthRoute && this.$route.name !== 'Parametres';
+    },
+    showMobileBottomNav() {
       return !this.$route.path.startsWith('/admin') && !this.isAuthRoute;
     }
   },
@@ -104,6 +110,16 @@ export default {
 </script>
 
 <style scoped>
+.app-shell.has-mobile-bottom-nav {
+  min-height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .app-shell.has-mobile-bottom-nav {
+    padding-bottom: calc(4.4rem + env(safe-area-inset-bottom));
+  }
+}
+
 @keyframes pop-out {
   0% {
     transform: scale(1);

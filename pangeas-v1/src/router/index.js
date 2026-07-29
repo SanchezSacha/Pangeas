@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '../../src/store/index.js';
+import axios from '@/axios.js';
 import UserAccount from '../components/account/UserAccount.vue';
 import PlaceDetail from "../components/map/PlaceDetail.vue";
 import SettingsAccount from '../components/settings/SettingsAccount.vue';
@@ -125,17 +126,42 @@ const routes = [
 
 const router = createRouter({
     history: createWebHistory(),
-    routes
+    routes,
+    scrollBehavior() {
+        return { top: 0, left: 0 };
+    }
 });
 
-router.beforeEach((to, from, next) => {
-    const user = store.state.user;
+async function resolveCurrentUser() {
+    if (store.state.user) {
+        return store.state.user;
+    }
+
+    try {
+        const response = await axios.get('/api/auth/me', { withCredentials: true });
+        if (response.data.success && response.data.user) {
+            store.commit('setUser', response.data.user);
+            return response.data.user;
+        }
+    } catch (error) {
+        return null;
+    }
+
+    return null;
+}
+
+router.beforeEach(async (to, from, next) => {
+    let user = store.state.user;
 
     if (to.query.token && to.name !== 'ResetPassword') {
         return next({
             name: 'ResetPassword',
             query: { token: to.query.token }
         });
+    }
+
+    if (to.meta.requiresAuth || to.meta.requiresAdmin) {
+        user = await resolveCurrentUser();
     }
 
     if (to.meta.requiresAdmin) {
@@ -145,7 +171,7 @@ router.beforeEach((to, from, next) => {
     }
     if (to.meta.requiresAuth) {
         if (!user) {
-            return next({ path: '/login' });
+            return next({ name: 'Home' });
         }
     }
     next();
