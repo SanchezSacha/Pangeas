@@ -277,6 +277,11 @@ export default {
 /* Mobile */
 
 @media screen and (max-width: 767px) {
+  .burger-btn,
+  .sidebar {
+    display: none;
+  }
+
   .sidebar {
     width: 33.333vw;
     min-width: 160px;

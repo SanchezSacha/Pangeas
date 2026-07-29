@@ -65,7 +65,7 @@ export default {
         bio: ''
       },
       avatarFile: null,
-      avatarPreview: '/img-avatar.jpg',
+      avatarPreview: '/logo_mobile_pangeas.png',
       apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
       errors: {},
       showSuccessPopup: false,
@@ -81,7 +81,7 @@ export default {
       if (newUser) {
         this.form.pseudo = newUser.pseudo;
         this.form.bio = newUser.bio || '';
-        this.avatarPreview = newUser.avatar_url ? `${this.apiBaseUrl}${newUser.avatar_url}` : '/img-avatar.jpg';
+        this.avatarPreview = newUser.avatar_url ? `${this.apiBaseUrl}${newUser.avatar_url}` : '/logo_mobile_pangeas.png';
       }
     }
   },
@@ -137,7 +137,7 @@ export default {
       if (this.user) {
         this.form.pseudo = this.user.pseudo;
         this.form.bio = this.user.bio || '';
-        this.avatarPreview = this.user.avatar_url ? `${this.apiBaseUrl}${this.user.avatar_url}` : '/img-avatar.jpg';
+        this.avatarPreview = this.user.avatar_url ? `${this.apiBaseUrl}${this.user.avatar_url}` : '/logo_mobile_pangeas.png';
         this.avatarFile = null;
         this.errors = {};
         this.formModified = false;
@@ -150,7 +150,7 @@ export default {
     if (this.user) {
       this.form.pseudo = this.user.pseudo;
       this.form.bio = this.user.bio || '';
-      this.avatarPreview = this.user.avatar_url ? `${apiBaseUrl}${this.user.avatar_url}` : '/img-avatar.jpg';
+      this.avatarPreview = this.user.avatar_url ? `${apiBaseUrl}${this.user.avatar_url}` : '/logo_mobile_pangeas.png';
     }
   }
 
@@ -160,10 +160,12 @@ export default {
 <style scoped>
 .edit-account {
   margin: 2rem auto;
-  padding: 2rem 1rem;
-  color: var(--color-brown);
-  border-radius: 10px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  color: #442a22;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: rgba(247, 243, 238, 0.82);
+  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
 }
 
 /* Avatar */
@@ -183,7 +185,9 @@ export default {
   height: 180px;
   border-radius: 50%;
   overflow: hidden;
-  border: 3px solid var(--color-brown);
+  border: 4px solid #f1ede8;
+  background: #5d4037;
+  box-shadow: 0 10px 26px rgba(68, 42, 34, 0.16);
   cursor: pointer;
 }
 
@@ -201,7 +205,7 @@ export default {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.3);
+  background: rgba(68, 42, 34, 0.32);
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -219,12 +223,13 @@ export default {
   font-size: 1.8rem;
   font-weight: 700;
   margin-top: 1rem;
-  transition: transform 0.2s ease, color 0.2s ease;
+  color: #442a22;
+  transition: color 0.2s ease;
   cursor: pointer;
 }
 
 .pseudo-section:hover {
-  transform: scale(1.05);
+  color: #5d4037;
 }
 
 .pseudo-input {
@@ -232,7 +237,11 @@ export default {
   max-width: 500px;
   font-weight: 700;
   text-align: center;
-  border: 2px solid var(--color-brown);
+  border: 1px solid rgba(212, 195, 190, 0.95);
+  border-bottom-width: 2px;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: #fdf9f4;
+  color: #1c1c19;
   outline: none;
 }
 
@@ -248,16 +257,20 @@ export default {
   gap: 0.4rem;
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
+  color: #665852;
 }
 .textarea {
-  background: transparent;
-  border: 2px solid #5a3e36;
-  border-radius: 1rem;
+  background: #fdf9f4;
+  border: 1px solid rgba(212, 195, 190, 0.95);
+  border-bottom-width: 2px;
+  border-radius: 0.5rem 0.5rem 0 0;
   padding: 1rem;
   width: 100%;
   font-size: 1rem;
-  color: #5a3e36;
+  color: #1c1c19;
   line-height: 1.4;
+  outline: none;
+  resize: vertical;
 }
 
 .pen-icon {
@@ -267,13 +280,15 @@ export default {
 }
 
 .btn-primary {
-  background-color: #5a3e36;
-  color: white;
-  font-weight: 600;
+  background: #442a22;
+  color: #fff;
+  border: 2px solid #442a22;
+  font-weight: 900;
   padding: 10px 16px;
-  border-radius: 0.6rem;
+  border-radius: 999px;
   margin-top: 2rem;
   width: 100%;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 .btn-actions {
   display: flex;
@@ -281,13 +296,37 @@ export default {
   margin-top: 2rem;
 }
 .btn-secondary {
-  background-color: #5a3e36;
-  color: white;
-  font-weight: 600;
+  background: transparent;
+  color: #5d4037;
+  border: 2px solid #5d4037;
+  font-weight: 900;
   padding: 10px 16px;
-  border-radius: 0.6rem;
+  border-radius: 999px;
   margin-top: 2rem;
   width: 100%;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-secondary:hover {
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .edit-account {
+    margin-top: 0;
+    padding: 1.1rem;
+  }
+
+  .btn-actions {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    margin-top: 0;
+  }
 }
 
 </style>
