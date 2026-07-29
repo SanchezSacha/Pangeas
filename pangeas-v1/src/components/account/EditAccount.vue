@@ -2,39 +2,59 @@
   <SuccessPopup v-if="showSuccessPopup" :message="successMessage" @closed="showSuccessPopup = false"/>
   <ErrorPopup v-if="showErrorPopup" :message="errorMessage" @closed="showErrorPopup = false"/>
 
-  <div class="edit-account">
-    <div class="row align-items-center g-4">
-      <div class="col-12 col-md-4 d-flex justify-content-center">
-        <div class="avatar-upload">
-          <label for="avatar">
-            <img :src="avatarPreview" alt="Avatar" class="avatar-image" />
-            <input type="file" id="avatar" @change="handleAvatarChange" @input="markModified" hidden />
-            <div class="avatar-hover"></div>
-          </label>
-        </div>
+  <section class="profile-hero" aria-labelledby="profile-title">
+    <div class="avatar-control">
+      <label class="avatar-frame" for="avatar">
+        <img :src="avatarPreview" alt="Avatar utilisateur" />
+        <input type="file" id="avatar" @change="handleAvatarChange" @input="markModified" hidden />
+      </label>
+      <span class="avatar-edit" aria-hidden="true">
+        <img src="/icons/upload.svg" alt="" />
+      </span>
+    </div>
+
+    <h2 id="profile-title">{{ form.pseudo }}</h2>
+    <p>{{ user?.email }}</p>
+
+    <div class="profile-badges" aria-label="Statut du compte">
+      <span>Explorateur</span>
+      <span class="level">Niveau {{ user?.level || 1 }}</span>
+    </div>
+
+    <div class="profile-bio-card">
+      <div class="bio-heading">
+        <span>Bio</span>
+        <button v-if="!isEditingBio" type="button" aria-label="Modifier la bio" @click="startBioEditing">
+          <img src="/icons/pen.svg" alt="" aria-hidden="true" />
+        </button>
       </div>
 
-      <div class="col-12 col-md-8">
-        <div class="pseudo-section">
-          <input v-if="isEditingPseudo" v-model="form.pseudo" class="pseudo-input"  @blur="isEditingPseudo = false" @input="markModified" autofocus/>
-          <span @click="isEditingPseudo = true" v-else>{{ form.pseudo }}</span>
-          <img src="/icons/pen.svg" class="pen-icon cursor-pointer"/>
-        </div>
+      <p v-if="!isEditingBio" :class="{ empty: !form.bio }">
+        {{ form.bio || 'Ajoutez une courte description pour présenter votre profil.' }}
+      </p>
 
-        <div class="bio-section">
-          <label for="bio">Bio
-            <img src="/icons/pen.svg" alt="Modifier la bio" class="pen-icon" />
-          </label>
-          <textarea id="bio" v-model="form.bio" class="textarea" rows="3" @input="markModified"></textarea>
-          <p v-if="errors.bio" class="text-red-500 text-sm mt-1">{{ errors.bio }}</p>
-        </div>
+      <textarea
+          v-else
+          id="bio"
+          v-model="form.bio"
+          rows="4"
+          aria-label="Bio"
+          @input="markModified"
+      ></textarea>
 
-        <div class="btn-actions" v-if="formModified || avatarFile">
-          <button @click="submitUpdate" class="btn-primary">Sauvegarder</button>
-          <button @click="resetChanges" class="btn-secondary">Annuler</button>
-        </div>
+      <small v-if="errors.bio">{{ errors.bio }}</small>
+
+      <div class="btn-actions" v-if="isEditingBio || formModified || avatarFile">
+        <button @click="submitUpdate" class="btn-primary">Sauvegarder</button>
+        <button @click="resetChanges" class="btn-secondary">Annuler</button>
       </div>
     </div>
+  </section>
+
+  <div class="profile-divider" aria-hidden="true">
+    <span></span>
+    <img src="/icons/map.svg" alt="" />
+    <span></span>
   </div>
 
 </template>
@@ -73,7 +93,7 @@ export default {
       successMessage: "",
       errorMessage: "",
       formModified: false,
-      isEditingPseudo: false,
+      isEditingBio: false,
     };
   },
   watch: {
@@ -111,6 +131,7 @@ export default {
           this.errors = {};
           this.formModified = false;
           this.avatarFile = null;
+          this.isEditingBio = false;
 
           this.successMessage = "Profil mis à jour avec succès !";
           this.showSuccessPopup = true;
@@ -133,6 +154,9 @@ export default {
     markModified() {
       this.formModified = true;
     },
+    startBioEditing() {
+      this.isEditingBio = true;
+    },
     resetChanges() {
       if (this.user) {
         this.form.pseudo = this.user.pseudo;
@@ -141,7 +165,7 @@ export default {
         this.avatarFile = null;
         this.errors = {};
         this.formModified = false;
-        this.isEditingPseudo = false;
+        this.isEditingBio = false;
       }
     }
   },
@@ -158,125 +182,194 @@ export default {
 </script>
 
 <style scoped>
-.edit-account {
-  margin: 2rem auto;
-  padding: 1.5rem;
-  color: #442a22;
-  border: 1px solid rgba(212, 195, 190, 0.58);
-  border-radius: 0.6rem;
-  background: rgba(247, 243, 238, 0.82);
-  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
-}
-
-/* Avatar */
-.avatar-upload {
-  position: relative;
-  width: 180px;
-  height: 180px;
+.profile-hero {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 1.25rem 0 2.75rem;
+  text-align: center;
 }
 
-.avatar-upload label {
+.avatar-control {
   position: relative;
-  display: inline-block;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
+  width: 8rem;
+  height: 8rem;
+  margin-bottom: 1rem;
+}
+
+.avatar-frame {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  border: 4px solid #f1ede8;
-  background: #5d4037;
+  border: 4px solid var(--color-pangeas-surface-strong);
+  border-radius: 50%;
+  background: var(--color-pangeas-primary-soft);
   box-shadow: 0 10px 26px rgba(68, 42, 34, 0.16);
   cursor: pointer;
 }
 
-.avatar-image {
+.avatar-frame > img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
 }
 
-.avatar-hover {
+.avatar-edit {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  background: rgba(68, 42, 34, 0.32);
-  opacity: 0;
-  transition: opacity 0.3s;
+  right: 0.05rem;
+  bottom: 0.2rem;
+  display: grid;
+  place-items: center;
+  width: 2.45rem;
+  height: 2.45rem;
+  border: 2px solid var(--color-pangeas-bg);
+  border-radius: 999px;
+  background: var(--color-pangeas-primary-soft);
+  box-shadow: 0 4px 12px rgba(68, 42, 34, 0.18);
 }
 
-.avatar-upload label:hover .avatar-hover {
-  opacity: 1;
+.avatar-edit img {
+  width: 1.05rem;
+  filter: brightness(0) invert(1);
 }
 
-/* Pseudo */
-.pseudo-section {
+.profile-hero h2 {
+  max-width: 100%;
+  color: var(--color-pangeas-primary);
+  font-size: clamp(2rem, 8vw, 3rem);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.profile-hero p {
+  margin-top: 0.35rem;
+  color: var(--color-pangeas-muted);
+  font-size: 1rem;
+}
+
+.profile-badges {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-top: 1rem;
-  color: #442a22;
-  transition: color 0.2s ease;
-  cursor: pointer;
+  margin-top: 1.2rem;
 }
 
-.pseudo-section:hover {
-  color: #5d4037;
+.profile-badges span {
+  padding: 0.32rem 0.9rem;
+  border-radius: 999px;
+  background: var(--color-pangeas-cream);
+  color: var(--color-pangeas-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
-.pseudo-input {
-  font-size: 1.8rem;
-  max-width: 500px;
-  font-weight: 700;
-  text-align: center;
-  border: 1px solid rgba(212, 195, 190, 0.95);
-  border-bottom-width: 2px;
-  border-radius: 0.5rem 0.5rem 0 0;
-  background: #fdf9f4;
-  color: #1c1c19;
-  outline: none;
+.profile-badges .level {
+  background: var(--color-pangeas-green);
+  color: #18362a;
 }
 
-
-/* Bio */
-.bio-section {
-  margin-top: 1rem;
+.profile-bio-card {
+  width: min(100%, 34rem);
+  margin-top: 1.35rem;
+  padding: 1rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: rgba(247, 243, 238, 0.82);
+  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
+  text-align: left;
 }
-.bio-section label {
-  font-weight: bold;
+
+.bio-heading {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
-  color: #665852;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.55rem;
+  color: var(--color-pangeas-primary);
+  font-weight: 900;
 }
-.textarea {
-  background: #fdf9f4;
+
+.bio-heading button {
+  display: grid;
+  place-items: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 999px;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.bio-heading button:hover {
+  background: rgba(68, 42, 34, 0.07);
+  transform: translateY(-1px);
+}
+
+.bio-heading img {
+  width: 1rem;
+  height: 1rem;
+  opacity: 0.68;
+}
+
+.profile-bio-card p {
+  color: #3f3530;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.profile-bio-card p.empty {
+  color: var(--color-pangeas-muted);
+  font-style: italic;
+}
+
+.profile-bio-card textarea {
+  width: 100%;
+  min-height: 7rem;
+  padding: 0.85rem 1rem;
   border: 1px solid rgba(212, 195, 190, 0.95);
   border-bottom-width: 2px;
   border-radius: 0.5rem 0.5rem 0 0;
-  padding: 1rem;
-  width: 100%;
-  font-size: 1rem;
+  outline: 0;
+  background: var(--color-pangeas-bg);
   color: #1c1c19;
-  line-height: 1.4;
-  outline: none;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1.45;
   resize: vertical;
 }
 
-.pen-icon {
-  width: 18px;
-  height: 18px;
-  opacity: 0.8;
+.profile-bio-card small {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--color-pangeas-danger);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.profile-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 54rem;
+  margin: 0 auto 3.25rem;
+  opacity: 0.38;
+}
+
+.profile-divider span {
+  flex: 1;
+  height: 1px;
+  background: var(--color-pangeas-line);
+}
+
+.profile-divider img {
+  width: 1.35rem;
+  opacity: 0.75;
 }
 
 .btn-primary {
@@ -313,11 +406,6 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .edit-account {
-    margin-top: 0;
-    padding: 1.1rem;
-  }
-
   .btn-actions {
     flex-direction: column;
     gap: 0.75rem;
