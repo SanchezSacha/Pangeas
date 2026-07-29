@@ -40,6 +40,20 @@ html, body {
   --color-auth-text: #1c1c19;
   --color-auth-error: #d66f6d;
 
+  /* DESIGN TOKENS V2 */
+  --color-pangeas-bg: #fdf9f4;
+  --color-pangeas-surface: #f7f3ee;
+  --color-pangeas-surface-strong: #f1ede8;
+  --color-pangeas-primary: #442a22;
+  --color-pangeas-primary-soft: #5d4037;
+  --color-pangeas-muted: #665852;
+  --color-pangeas-line: #d4c3be;
+  --color-pangeas-cream: #eee1c9;
+  --color-pangeas-green: #c8ead8;
+  --color-pangeas-danger: #ba1a1a;
+  --shadow-pangeas-card: 0 8px 30px rgba(68, 42, 34, 0.055);
+  --shadow-pangeas-popover: 0 16px 38px rgba(68, 42, 34, 0.16);
+
   /* POLICES */
   --font-logo: 'Playfair Display', serif;
   --font-title: 'Merriweather', serif;

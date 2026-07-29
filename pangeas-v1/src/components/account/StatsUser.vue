@@ -94,20 +94,25 @@ onMounted(fetchStats);
 <style scoped>
 .stats-container {
   margin: 3rem auto;
-  padding: 2rem;
-  background-color: var(--color-beige);
-  border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  color: var(--color-white);
+  padding: 1.5rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: rgba(247, 243, 238, 0.82);
+  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
+  color: #1c1c19;
 }
 
 .section-title {
-  font-size: 1.8rem;
+  font-size: 1.45rem;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: var(--color-brown);
+  gap: 0.65rem;
+  color: #442a22;
+}
+
+.section-title i {
+  color: #5d4037;
 }
 
 .stats-grid {
@@ -117,23 +122,43 @@ onMounted(fetchStats);
 }
 
 .stat-card {
-  background-color: var(--color-brown);
-  border-radius: 1rem;
+  background: #fdf9f4;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.55rem;
   padding: 1rem;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 22px rgba(68, 42, 34, 0.07);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: default;
 }
 
 .stat-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(68, 42, 34, 0.11);
+}
+
+.stat-card h3 {
+  color: #442a22;
+  font-size: 1.35rem;
+  margin-bottom: 0.15rem;
+}
+
+.stat-card p {
+  color: #665852;
+  margin: 0;
+  font-weight: 700;
 }
 
 .stat-icon {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: var(--color-white);
+  color: #5d4037;
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    margin: 2rem auto;
+    padding: 1rem;
+  }
 }
 </style>

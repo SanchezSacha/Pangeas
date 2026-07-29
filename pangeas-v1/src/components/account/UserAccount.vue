@@ -41,8 +41,21 @@ onMounted(fetchUser);
 
 <style scoped>
 .mon-compte-page {
-  background-color: var(--color-beige);
+  background: #fdf9f4;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 1rem 1rem 6rem;
+  color: #1c1c19;
+}
+
+.profil-section {
+  width: min(100%, 68rem);
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .mon-compte-page {
+    padding-left: calc(90px + 2rem);
+    padding-right: 2rem;
+  }
 }
 </style>

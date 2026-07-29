@@ -73,26 +73,35 @@ onMounted(fetchVisitedPlaces);
 <style scoped>
 .historic-container {
   margin: 3rem auto;
-  padding: 2rem;
-  background-color: var(--color-beige);
-  border-radius: 1rem;
-  color: var(--color-white);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: rgba(247, 243, 238, 0.82);
+  color: #1c1c19;
+  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
 }
 
 .section-title {
-  font-size: 1.8rem;
-  color: var(--color-brown);
+  font-size: 1.45rem;
+  color: #442a22;
   margin-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
+}
+
+.section-title i {
+  color: #5d4037;
 }
 
 .no-visits {
   text-align: center;
-  color: var(--color-brown);
+  color: #665852;
   font-style: italic;
+  padding: 1.25rem;
+  border: 1px dashed rgba(130, 116, 112, 0.45);
+  border-radius: 0.55rem;
+  background: #fdf9f4;
 }
 
 .places-grid {
@@ -102,15 +111,17 @@ onMounted(fetchVisitedPlaces);
 }
 
 .place-card {
-  background: var(--color-brown);
-  border-radius: 1rem;
+  background: #fdf9f4;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.55rem;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease;
+  box-shadow: 0 8px 22px rgba(68, 42, 34, 0.07);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .place-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(68, 42, 34, 0.11);
 }
 
 .place-img {
@@ -123,14 +134,20 @@ onMounted(fetchVisitedPlaces);
   padding: 1rem;
 }
 
+.place-info h3 {
+  color: #442a22;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
 .date {
   font-size: 0.85rem;
-  color: #ccc;
+  color: #665852;
 }
 
 .badge {
-  background-color: var(--color-beige);
-  color: var(--color-brown);
+  background: #eee1c9;
+  color: #665852;
   font-size: 0.8rem;
   display: inline-block;
   padding: 0.3rem 0.6rem;
@@ -143,17 +160,18 @@ onMounted(fetchVisitedPlaces);
   justify-content: center;
 }
 .load-more button {
-  background-color: var(--color-brown);
-  color: var(--color-white);
-  border: none;
+  background: #442a22;
+  color: #fff;
+  border: 2px solid #442a22;
   padding: 0.7rem 1.5rem;
   font-size: 1rem;
-  border-radius: 8px;
+  border-radius: 999px;
+  font-weight: 900;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.3s ease;
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 .load-more button:hover {
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 .load-more button:disabled {
   opacity: 0.5;
@@ -161,6 +179,11 @@ onMounted(fetchVisitedPlaces);
 }
 
 @media (max-width: 768px) {
+  .historic-container {
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
   .places-grid {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }

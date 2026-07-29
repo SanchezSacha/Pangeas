@@ -4,8 +4,11 @@
       <i :class="favoriteIconClass + ' popup-icon'"></i>
     </button>
 
-    <h5 class="mt-2">{{ place.name }}</h5>
-    <p class="mb-1 text-muted">{{ place.department }} • {{ place.distance_km }} km</p>
+    <h5>{{ place.name }}</h5>
+    <div class="popup-meta-row">
+      <span v-if="place.category" class="popup-badge">{{ place.category }}</span>
+      <span class="popup-meta">{{ place.department }} • {{ place.distance_km }} km</span>
+    </div>
     <img :src="place.image_url" loading="lazy" :alt="place.name" class="popup-img" />
     <div class="place-actions">
       <button class="action-button" v-if="source !== 'favorites'" :class="{ 'disabled': !isLoggedIn || hasAnotherVisit }" :disabled="!isLoggedIn || hasAnotherVisit" @click="isCurrentPlace ? consultRoute() : handleVisit()">
@@ -15,10 +18,10 @@
       <button class="action-button" @click="goToDetail">Détail</button>
     </div>
 
-    <p v-if="!isLoggedIn" class="text-danger mt-2 text-center" style="font-weight: bold">
+    <p v-if="!isLoggedIn" class="popup-message error">
       Connectez-vous pour débloquer toutes les fonctionnalités.
     </p>
-    <p v-if="geoError" class="text-danger mt-2 text-center" style="font-weight: bold">
+    <p v-if="geoError" class="popup-message error">
       La géolocalisation est requise pour valider la visite.
     </p>
     <SuccessPopup v-if="showSuccess" :message="successMessage"/>
@@ -165,69 +168,3 @@ export default {
 };
 </script>
 
-<style scoped>
-.btn-disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-.popup-img {
-  width: 100%;
-  border-radius: 10px;
-  margin-top: 0.5rem;
-}
-
-.fav-disabled {
-  opacity: 0.5;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
-.place-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.action-button {
-  flex: 1 1 100px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  background-color: #5a3e36;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  white-space: nowrap;
-  transition: background-color 0.2s ease;
-}
-
-.action-button:hover {
-  background-color: #7a5147;
-}
-
-.action-button.disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-
-.action-button.danger {
-  background-color: #c0392b;
-}
-
-@media (max-width: 500px) {
-  .place-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.4rem;
-  }
-  .action-button {
-    max-height: 38px;
-    line-height: 1.2;
-  }
-}
-
-
-</style>

@@ -1,6 +1,6 @@
 <template>
-  <section class="favorites-section" style="margin-top: 3rem; background-color: var(--color-brown); border-radius: 10px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);">
-    <h1 class="favorites-title" style="color: var(--color-beige)">Mes Favoris <i class="fa-solid fa-chevron-right"></i></h1>
+  <section class="favorites-section">
+    <h1 class="favorites-title"><i class="fa-solid fa-heart"></i> Mes Favoris</h1>
 
     <p v-if="visibleFavorites.length === 0" class="no-favorites-message">
       Vous n'avez aucun lieu en favori...
@@ -75,9 +75,25 @@ onMounted(fetchFavorites);
 
 <style scoped>
 .favorites-title {
-  margin: 2rem 0 1rem 4rem;
-  padding-top: 2rem;
-  font-size: 2rem;
+  margin: 0 0 1.25rem;
+  color: #442a22;
+  font-size: 1.45rem;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.favorites-title i {
+  color: #5d4037;
+}
+
+.favorites-section {
+  margin: 2.75rem auto 0;
+  padding: 1.5rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: rgba(247, 243, 238, 0.82);
+  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
 }
 
 .favorites-wrapper {
@@ -85,7 +101,7 @@ onMounted(fetchFavorites);
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
-  padding: 3rem 0;
+  padding: 0.5rem 0 0;
 }
 
 .carousel-wrapper {
@@ -96,7 +112,7 @@ onMounted(fetchFavorites);
 
 .carousel-container {
   overflow-x: hidden;
-  padding: 1rem;
+  padding: 0.35rem;
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
   flex: 1;
@@ -114,20 +130,22 @@ onMounted(fetchFavorites);
 .carousel > * {
   scroll-snap-align: center;
   flex: 0 0 auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 12px;
-  background-color: var(--color-beige);
-  padding: 1rem;
-  transition: transform 0.2s ease;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.55rem;
+  background: #fdf9f4;
+  box-shadow: 0 8px 22px rgba(68, 42, 34, 0.07);
+  padding: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .carousel > *:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(68, 42, 34, 0.11);
 }
 
 .arrow {
-  background-color: var(--color-beige);
-  color: var(--color-brown);
-  border: none;
+  background: #fdf9f4;
+  color: #5d4037;
+  border: 1px solid rgba(212, 195, 190, 0.9);
   font-size: 1rem;
   width: 45px;
   height: 45px;
@@ -137,14 +155,14 @@ onMounted(fetchFavorites);
   justify-content: center;
   cursor: pointer;
   z-index: 2;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 8px 18px rgba(68, 42, 34, 0.12);
 }
 
 .arrow:hover {
-  background-color: rgba(90, 62, 54, 1);
-  color: rgba(255, 255, 255);
-  transform: scale(1.2);
+  background: #5d4037;
+  color: #fdf9f4;
+  transform: translateY(-50%) scale(1.04);
 }
 
 .arrow.left {
@@ -163,9 +181,13 @@ onMounted(fetchFavorites);
 
 .no-favorites-message {
   text-align: center;
-  color: white;
+  color: #665852;
   font-style: italic;
-  margin: 2rem;
+  margin: 1.25rem 0 0;
+  padding: 1.25rem;
+  border: 1px dashed rgba(130, 116, 112, 0.45);
+  border-radius: 0.55rem;
+  background: #fdf9f4;
 }
 
 @media (max-width: 768px) {
@@ -177,11 +199,11 @@ onMounted(fetchFavorites);
   }
   .favorites-title {
     margin: 0 0 1rem 0;
-    text-align: center;
-    font-size: 2rem;
+    font-size: 1.28rem;
   }
   .favorites-section{
     margin-top: 0;
+    padding: 1rem;
   }
 }
 

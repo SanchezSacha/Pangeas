@@ -2,7 +2,7 @@
   <div class="container-fluid p-0 app-shell" :class="{ 'has-mobile-bottom-nav': showMobileBottomNav }">
     <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
-    <MobileBottomNav v-if="showMobileBottomNav" />
+    <MobileBottomNav v-if="showMobileBottomNav" @open-login="showLoginModal" @open-register="showRegisterModal"/>
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
         <div class="modal-content registration-modal">
