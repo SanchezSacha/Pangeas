@@ -137,9 +137,9 @@ export default {
 <style scoped>
 .legal-container {
   min-height: 100vh;
-  background-color: var(--color-beige);
-  color: var(--color-brown);
-  padding: 5.25rem 2rem calc(7rem + env(safe-area-inset-bottom));
+  background: var(--color-pangeas-bg);
+  color: var(--color-auth-text);
+  padding: 5.75rem 1rem calc(7rem + env(safe-area-inset-bottom));
   line-height: 1.7;
 }
 
@@ -153,7 +153,7 @@ export default {
   width: 2.75rem;
   height: 2.75rem;
   border-radius: 999px;
-  background: rgba(253, 249, 244, 0.92);
+  background: rgba(253, 249, 244, 0.94);
   border: 1px solid rgba(212, 195, 190, 0.65);
   box-shadow: 0 8px 24px rgba(68, 42, 34, 0.12);
   backdrop-filter: blur(10px);
@@ -170,36 +170,104 @@ export default {
   height: 1.2rem;
 }
 
-h1, h2 {
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
+h1 {
+  width: min(100%, 52rem);
+  margin: 0 auto 1.5rem;
+  padding-bottom: 0 !important;
+  color: var(--color-pangeas-primary);
+  font-size: clamp(2rem, 8vw, 3.2rem);
+  line-height: 1.08;
+}
+
+h1::before {
+  content: "";
+  display: block;
+  width: 4.35rem;
+  height: 4.35rem;
+  margin: 0 auto 1rem;
+  background: url("/logo_mobile_pangeas.png") center / contain no-repeat;
+}
+
+section {
+  width: min(100%, 52rem);
+  margin: 0 auto 1rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.6rem;
+  background: var(--color-pangeas-surface);
+  box-shadow: var(--shadow-pangeas-card);
+}
+
+h2 {
+  margin: 0 0 0.75rem;
+  color: var(--color-pangeas-primary);
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+p + p,
+ul + p {
+  margin-top: 0.85rem;
+}
+
+ul {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: #3f3530;
+}
+
+li::before {
+  content: "";
+  position: absolute;
+  top: 0.72em;
+  left: 0;
+  width: 0.38rem;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: var(--color-pangeas-primary-soft);
 }
 
 a {
-  color: var(--color-brown);
+  color: var(--color-pangeas-primary);
+  font-weight: 900;
   text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.16em;
 }
 
 .back-button {
-  margin: 2rem 0;
-  color: var(--color-beige);
+  display: flex;
+  justify-content: center;
+  width: min(100%, 14rem);
+  min-height: 3rem;
+  margin: 2rem auto 0;
+  color: #fff;
   font-size: 1rem;
-  cursor: pointer;
-  font-weight: bold;
-  background-color: var(--color-brown);
-  border: 3px solid transparent;
-  transition: all 0.2s ease;
+  font-weight: 900;
+  background: var(--color-pangeas-primary);
+  border: 2px solid var(--color-pangeas-primary);
+  border-radius: 999px;
+  transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .back-button:hover {
-  background-color: var(--color-beige);
-  color: var(--color-brown);
-  border: 3px solid var(--color-brown);
+  background: var(--color-pangeas-primary-soft);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 520px) {
   .legal-container {
-    padding-inline: 1.25rem;
+    padding-inline: 0.9rem;
+  }
+
+  section {
+    padding: 1rem;
   }
 }
 </style>
