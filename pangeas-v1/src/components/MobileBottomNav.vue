@@ -12,7 +12,7 @@
       </router-link>
 
       <button class="nav-button coming-soon" type="button" aria-label="Récompenses bientôt disponibles">
-        <img src="/icons/route.svg" alt="" aria-hidden="true" />
+        <img src="/icons/gift.svg" alt="" aria-hidden="true" />
         <span>Récompenses</span>
       </button>
 
