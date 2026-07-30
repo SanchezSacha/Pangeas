@@ -1,5 +1,48 @@
 <template>
-  <div id="map" class="map-container"></div>
+  <div class="map-shell">
+    <div class="map-search-panel">
+      <div class="map-search" role="search">
+        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <input
+            v-model.trim="searchQuery"
+            type="search"
+            placeholder="Rechercher un lieu"
+            aria-label="Rechercher un lieu par nom, département ou catégorie"
+        />
+        <button
+            v-if="searchQuery"
+            type="button"
+            aria-label="Effacer la recherche"
+            @click="clearSearch"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+        <small v-if="hasActiveFilters">
+          {{ filteredPlaces.length }} résultat{{ filteredPlaces.length > 1 ? 's' : '' }}
+        </small>
+      </div>
+
+      <div class="map-category-filters" aria-label="Filtres par catégorie">
+        <button
+            v-for="filter in categoryFilters"
+            :key="filter.key"
+            type="button"
+            :class="{ active: isCategorySelected(filter.key) }"
+            :aria-pressed="isCategorySelected(filter.key)"
+            @click="toggleCategoryFilter(filter.key)"
+        >
+          <i :class="filter.icon" aria-hidden="true"></i>
+          <span>{{ filter.label }}</span>
+        </button>
+      </div>
+    </div>
+
+    <p v-if="hasActiveFilters && filteredPlaces.length === 0" class="map-search-empty">
+      Aucun lieu trouvé
+    </p>
+
+    <div id="map" class="map-container"></div>
+  </div>
 </template>
 
 <script>
@@ -63,11 +106,50 @@ const fallbackMarkerType = {
   className: 'default',
 };
 
+const categoryAliases = {
+  historical: 'historique',
+  urban: 'urbain',
+  spooky: 'frisson',
+};
+
+const categoryFilterOptions = [
+  {
+    key: 'nature',
+    label: 'Nature',
+    icon: 'fa-solid fa-tree',
+  },
+  {
+    key: 'historique',
+    label: 'Historique',
+    icon: 'fa-solid fa-landmark',
+  },
+  {
+    key: 'urbain',
+    label: 'Urbain',
+    icon: 'fa-solid fa-building',
+  },
+  {
+    key: 'frisson',
+    label: 'Frisson',
+    icon: 'fa-solid fa-ghost',
+  },
+  {
+    key: 'secret',
+    label: 'Secret',
+    icon: 'fa-solid fa-question',
+  },
+];
+
 const normalizeCategory = (category = '') => String(category)
     .trim()
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
+
+const normalizePlaceCategory = (category = '') => {
+  const normalizedCategory = normalizeCategory(category);
+  return categoryAliases[normalizedCategory] || normalizedCategory;
+};
 
 export default {
   name: 'MapLeaflet',
@@ -86,14 +168,36 @@ export default {
       popupInstance: null,
       ongoingVisit: null,
       displayedPlaces: [],
+      searchQuery: '',
+      selectedCategories: [],
+      categoryFilters: categoryFilterOptions,
       clusterMaxZoom: 15,
       clusterRadius: 48,
     };
   },
+  computed: {
+    normalizedSearchQuery() {
+      return normalizeCategory(this.searchQuery);
+    },
+    shouldFilterPlaces() {
+      return this.normalizedSearchQuery.length >= 3;
+    },
+    hasCategoryFilters() {
+      return this.selectedCategories.length > 0;
+    },
+    hasActiveFilters() {
+      return this.shouldFilterPlaces || this.hasCategoryFilters;
+    },
+    filteredPlaces() {
+      return this.places.filter(place => (
+          this.matchesCategoryFilters(place) && this.matchesPlaceSearch(place)
+      ));
+    },
+  },
   methods: {
     initMap(places = []) {
       if (this.map) {
-        this.renderPlaces(places);
+        this.renderPlaces(this.filteredPlaces);
         return;
       }
 
@@ -106,6 +210,69 @@ export default {
       this.markersLayer = L.layerGroup().addTo(this.map);
       this.registerMapEvents();
       this.renderPlaces(places);
+    },
+    clearSearch() {
+      this.searchQuery = '';
+    },
+    isCategorySelected(category) {
+      return this.selectedCategories.includes(category);
+    },
+    toggleCategoryFilter(category) {
+      this.selectedCategories = this.isCategorySelected(category)
+          ? this.selectedCategories.filter(selectedCategory => selectedCategory !== category)
+          : [...this.selectedCategories, category];
+    },
+    matchesCategoryFilters(place) {
+      if (!this.hasCategoryFilters) return true;
+      return this.selectedCategories.includes(normalizePlaceCategory(place?.category));
+    },
+    matchesPlaceSearch(place) {
+      if (!this.shouldFilterPlaces) return true;
+
+      const searchableValues = [
+        place?.name,
+        place?.department,
+        place?.region,
+        place?.category,
+      ];
+
+      return searchableValues.some(value =>
+          normalizeCategory(value).includes(this.normalizedSearchQuery)
+      );
+    },
+    focusFilteredPlaces() {
+      if (!this.map || !this.hasActiveFilters || this.filteredPlaces.length === 0) return;
+
+      const bounds = L.latLngBounds([]);
+
+      this.filteredPlaces.forEach(place => {
+        const lat = Number(place.coordinates?.lat);
+        const lng = Number(place.coordinates?.lng);
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          bounds.extend([lat, lng]);
+        }
+      });
+
+      if (!bounds.isValid()) return;
+
+      if (this.filteredPlaces.length === 1) {
+        const center = bounds.getCenter();
+        this.map.setView(center, Math.max(this.map.getZoom(), 13), { animate: true });
+        return;
+      }
+
+      this.map.fitBounds(bounds, {
+        animate: true,
+        paddingTopLeft: [70, 110],
+        paddingBottomRight: [70, 90],
+        maxZoom: 12,
+      });
+    },
+    applyPlacesFilter() {
+      if (!this.map) return;
+      this.map.closePopup();
+      this.renderPlaces(this.filteredPlaces, false);
+      this.focusFilteredPlaces();
     },
     registerMapEvents() {
       this.map.on('zoomend moveend', () => {
@@ -420,14 +587,180 @@ export default {
       handler(newPlaces) {
         nextTick(() => this.initMap(newPlaces));
       }
+    },
+    searchQuery() {
+      nextTick(() => this.applyPlacesFilter());
+    },
+    selectedCategories() {
+      nextTick(() => this.applyPlacesFilter());
     }
   }
 };
 </script>
 
 <style scoped>
+.map-shell {
+  position: relative;
+  min-height: 100vh;
+}
+
 .map-container {
   height: 100vh;
   width: 100%;
+}
+
+.map-search-panel {
+  position: absolute;
+  top: 1rem;
+  z-index: 1000;
+  left: calc(50% + 2.2rem);
+  width: min(31rem, calc(100vw - 7rem));
+  transform: translateX(-50%);
+}
+
+.map-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 0.65rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.42rem 0.7rem 0.42rem 0.95rem;
+  border: 1px solid color-mix(in srgb, var(--color-pangeas-line) 76%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-pangeas-bg) 94%, transparent);
+  color: var(--color-pangeas-primary);
+  box-shadow: 0 12px 30px rgba(68, 42, 34, 0.14);
+  backdrop-filter: blur(12px);
+}
+
+.map-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-auth-text);
+  font-family: var(--font-content);
+  font-size: 0.94rem;
+  font-weight: 800;
+}
+
+.map-search input::placeholder {
+  color: var(--color-pangeas-muted);
+  opacity: 0.78;
+}
+
+.map-search button {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-pangeas-surface);
+  color: var(--color-pangeas-primary);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.map-search button:hover {
+  background: var(--color-pangeas-primary);
+  color: var(--color-pangeas-bg);
+  transform: translateY(-1px);
+}
+
+.map-search small {
+  grid-column: 2 / 4;
+  margin-top: -0.18rem;
+  color: var(--color-pangeas-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.map-category-filters {
+  display: flex;
+  gap: 0.45rem;
+  width: 100%;
+  margin-top: 0.55rem;
+  overflow-x: auto;
+  padding: 0.1rem 0.05rem 0.35rem;
+  scrollbar-width: none;
+}
+
+.map-category-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.map-category-filters button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.35rem;
+  padding: 0.45rem 0.72rem;
+  border: 1px solid color-mix(in srgb, var(--color-pangeas-line) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-pangeas-bg) 95%, transparent);
+  color: var(--color-pangeas-primary);
+  box-shadow: 0 8px 18px rgba(68, 42, 34, 0.1);
+  font-size: 0.76rem;
+  font-weight: 900;
+  white-space: nowrap;
+  backdrop-filter: blur(10px);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+}
+
+.map-category-filters button:hover {
+  border-color: var(--color-pangeas-primary-soft);
+  transform: translateY(-1px);
+}
+
+.map-category-filters button.active {
+  border-color: var(--color-pangeas-primary);
+  background: var(--color-pangeas-primary);
+  color: var(--color-pangeas-bg);
+}
+
+.map-category-filters i {
+  font-size: 0.82rem;
+}
+
+.map-search-empty {
+  position: absolute;
+  top: 7.85rem;
+  left: calc(50% + 2.2rem);
+  z-index: 1000;
+  margin: 0;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--color-pangeas-line) 68%, transparent);
+  border-radius: 999px;
+  background: var(--color-pangeas-bg);
+  color: var(--color-pangeas-primary);
+  font-size: 0.82rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(68, 42, 34, 0.12);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 767px) {
+  .map-search-panel {
+    top: 0.75rem;
+    left: 4.1rem;
+    right: 0.75rem;
+    width: auto;
+    transform: none;
+  }
+
+  .map-search {
+    min-height: 3rem;
+  }
+
+  .map-search-empty {
+    top: 7.25rem;
+    left: 4.1rem;
+    right: 0.75rem;
+    text-align: center;
+    transform: none;
+  }
 }
 </style>
