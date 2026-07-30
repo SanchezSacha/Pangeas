@@ -14,8 +14,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
       manifest: {
-        name: '',
-        short_name: '',
+        id: '/',
+        name: 'Pangeas',
+        short_name: 'Pangeas',
         description: 'Pangeas vous invite à explorer la nature autrement. Découvrez des lieux insolites, vivez des expériences uniques pour profiter pleinement de chaque sortie. Grâce à une carte interactive, trouvez facilement vos prochaines aventures.',
         theme_color: '#5D4037',
         background_color: '#EFE2CA',
@@ -32,6 +33,22 @@ export default defineConfig({
             src: '/logo_mobile_pangeas_blanc.png',
             sizes: '500x500',
             type: 'image/png'
+          }
+        ],
+        screenshots: [
+          {
+            src: '/logo_seo.png',
+            sizes: '1024x1024',
+            type: 'image/png',
+            form_factor: 'narrow',
+            label: 'Pangeas - Explore la nature autrement'
+          },
+          {
+            src: '/logo_seo.png',
+            sizes: '1024x1024',
+            type: 'image/png',
+            form_factor: 'wide',
+            label: 'Pangeas - Explore la nature autrement'
           }
         ]
       },

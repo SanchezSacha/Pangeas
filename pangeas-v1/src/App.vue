@@ -2,6 +2,7 @@
   <div class="container-fluid p-0 app-shell" :class="{ 'has-mobile-bottom-nav': showMobileBottomNav }">
     <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
+    <PwaInstallNudge />
     <MobileBottomNav v-if="showMobileBottomNav" @open-login="showLoginModal" @open-register="showRegisterModal"/>
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
@@ -35,6 +36,7 @@ import Sidebar from "./components/Sidebar.vue";
 import MobileBottomNav from "./components/MobileBottomNav.vue";
 import Registration from "./components/modal/Registration.vue";
 import Connexion from "./components/modal/Connexion.vue";
+import PwaInstallNudge from "./components/PwaInstallNudge.vue";
 import store from './store';
 
 export default {
@@ -43,7 +45,8 @@ export default {
     Sidebar,
     MobileBottomNav,
     Registration,
-    Connexion
+    Connexion,
+    PwaInstallNudge
   },
   data() {
     return {
@@ -57,7 +60,9 @@ export default {
       return ['ForgotPassword', 'ResetPassword'].includes(this.$route.name);
     },
     showSidebar() {
-      return !this.$route.path.startsWith('/admin') && !this.isAuthRoute && this.$route.name !== 'Parametres';
+      return !this.$route.path.startsWith('/admin') &&
+          !this.isAuthRoute &&
+          !['Parametres', 'MonCompte', 'PlaceDetail'].includes(this.$route.name);
     },
     showMobileBottomNav() {
       return !this.$route.path.startsWith('/admin') && !this.isAuthRoute;

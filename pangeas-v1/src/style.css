@@ -53,6 +53,10 @@ html, body {
   --color-pangeas-danger: #ba1a1a;
   --shadow-pangeas-card: 0 8px 30px rgba(68, 42, 34, 0.055);
   --shadow-pangeas-popover: 0 16px 38px rgba(68, 42, 34, 0.16);
+  --pangeas-cta-gradient: linear-gradient(120deg, #5d4037 0%, #755044 42%, #8a6650 52%, #5a392f 100%);
+  --pangeas-cta-hover-shadow: 0 1rem 1.8rem rgba(68, 42, 34, 0.24);
+  --pangeas-cta-active-shadow: 0 0.55rem 1rem rgba(68, 42, 34, 0.2);
+  --pangeas-cta-focus-ring: rgba(182, 147, 134, 0.5);
 
   /* POLICES */
   --font-logo: 'Playfair Display', serif;
@@ -92,6 +96,92 @@ button {
   cursor: pointer;
   border: none;
   background: none;
+}
+
+:where(
+  .auth-submit,
+  .primary-action,
+  .secondary-action,
+  .danger-action,
+  .visit-button,
+  .back-button,
+  .save-button,
+  .logout-button,
+  .action-button,
+  .profile-bio-card .btn-primary,
+  .profile-bio-card .btn-secondary
+) {
+  transition:
+    transform 0.24s ease,
+    box-shadow 0.24s ease,
+    background-position 0.45s ease,
+    background-color 0.24s ease,
+    color 0.24s ease,
+    outline-color 0.24s ease;
+}
+
+:where(
+  .primary-action,
+  .visit-button,
+  .save-button,
+  .action-button:not(.danger),
+  .profile-bio-card .btn-primary
+):not(:disabled):not(.disabled) {
+  background-image: var(--pangeas-cta-gradient);
+  background-size: 220% 100%;
+  background-position: 0 50%;
+  outline: 1px solid transparent;
+  outline-offset: 0;
+}
+
+:where(
+  .auth-submit,
+  .primary-action,
+  .secondary-action,
+  .danger-action,
+  .visit-button,
+  .back-button,
+  .save-button,
+  .logout-button,
+  .action-button,
+  .profile-bio-card .btn-primary,
+  .profile-bio-card .btn-secondary
+):not(:disabled):not(.disabled):hover,
+:where(
+  .auth-submit,
+  .primary-action,
+  .secondary-action,
+  .danger-action,
+  .visit-button,
+  .back-button,
+  .save-button,
+  .logout-button,
+  .action-button,
+  .profile-bio-card .btn-primary,
+  .profile-bio-card .btn-secondary
+):not(:disabled):not(.disabled):focus-visible {
+  background-position: 100% 50% !important;
+  box-shadow: var(--pangeas-cta-hover-shadow) !important;
+  outline-color: var(--pangeas-cta-focus-ring) !important;
+  text-decoration: none;
+  transform: translateY(-2px) scale(1.018) !important;
+}
+
+:where(
+  .auth-submit,
+  .primary-action,
+  .secondary-action,
+  .danger-action,
+  .visit-button,
+  .back-button,
+  .save-button,
+  .logout-button,
+  .action-button,
+  .profile-bio-card .btn-primary,
+  .profile-bio-card .btn-secondary
+):not(:disabled):not(.disabled):active {
+  box-shadow: var(--pangeas-cta-active-shadow) !important;
+  transform: translateY(-1px) scale(1.006) !important;
 }
 
 /* -----------------------------------------------------------

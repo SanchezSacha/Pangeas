@@ -6,7 +6,10 @@
       </button>
 
       <div class="topbar-title">
-        <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="settings-logo" />
+        <picture>
+          <source media="(min-width: 768px)" srcset="/logo_marron_2.png" />
+          <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="settings-logo" />
+        </picture>
         <h1>Paramètres</h1>
       </div>
 
@@ -97,7 +100,7 @@
       </div>
 
       <div class="settings-card account-card">
-        <div class="account-row">
+        <div class="account-row interactive-row">
           <span class="row-icon geo-icon" aria-hidden="true">⌖</span>
           <span class="row-copy">
             <strong>Géolocalisation</strong>
@@ -107,6 +110,41 @@
             <input v-model="geolocationEnabled" type="checkbox" />
             <span></span>
           </label>
+        </div>
+
+        <div v-if="showInstallSettingsRow" class="account-row install-row interactive-row">
+          <span class="row-icon install-icon" aria-hidden="true">
+            <img src="/icons/house.svg" alt="" />
+          </span>
+          <span class="row-copy">
+            <strong>{{ installSettingsTitle }}</strong>
+            <small>{{ installSettingsCopy }}</small>
+            <button
+                v-if="!installState.isInstalled"
+                class="install-help-toggle"
+                type="button"
+                :aria-expanded="showSettingsIosInstructions"
+                @click="toggleInstallHelp"
+            >
+              <span>{{ showSettingsIosInstructions ? 'Masquer les infos iOS' : 'Infos iOS' }}</span>
+              <img src="/icons/chevron-right.svg" alt="" aria-hidden="true" />
+            </button>
+            <small v-if="showSettingsIosInstructions" class="ios-install-help">
+              {{ settingsInstallHelp }}
+            </small>
+          </span>
+          <button
+              v-if="!installState.isInstalled"
+              class="install-download-action"
+              type="button"
+              aria-label="Installer Pangeas"
+              @click="handleInstallPwa"
+          >
+            <img src="/icons/download.svg" alt="" aria-hidden="true" />
+          </button>
+          <span v-else class="row-action icon-action" aria-hidden="true">
+            <img src="/icons/check.svg" alt="" />
+          </span>
         </div>
 
         <button class="account-row" type="button" @click="downloadJson">
@@ -206,6 +244,11 @@ import EmailUpdateModal from '../modal/EmailUpdateModal.vue';
 import PasswordUpdateModal from '../modal/PasswordUpdateModal.vue';
 import DeleteAccountModal from '../modal/DeleteAccountModal.vue';
 import DeleteUserDataModal from '../modal/DeleteUserDataModal.vue';
+import {
+  getInstallState,
+  promptPwaInstall,
+  subscribeToInstallState,
+} from '@/utils/pwaInstall';
 
 export default {
   name: 'SettingsAccount',
@@ -237,7 +280,10 @@ export default {
       showErrorPopup: false,
       successMessage: '',
       errorMessage: '',
-      supportCopied: false
+      supportCopied: false,
+      installState: getInstallState(),
+      unsubscribeInstallState: null,
+      showSettingsIosInstructions: false
     };
   },
   computed: {
@@ -249,6 +295,24 @@ export default {
     },
     copyLabel() {
       return this.supportCopied ? 'Adresse copiée' : "Copier l'adresse support";
+    },
+    showInstallSettingsRow() {
+      return this.installState.canInstall || this.installState.isInstalled;
+    },
+    installSettingsTitle() {
+      if (this.installState.isInstalled) return 'Pangeas est installée';
+      return this.installState.isIos ? "Ajouter à l'écran d'accueil" : 'Installer Pangeas';
+    },
+    installSettingsCopy() {
+      if (this.installState.isInstalled) return "L'application est déjà disponible comme une app.";
+      if (this.installState.isIos) return 'Gardez Pangeas accessible depuis votre écran d’accueil.';
+      return 'Accéder plus vite à vos lieux, favoris et récompenses.';
+    },
+    settingsInstallHelp() {
+      if (this.installState.isIos) {
+        return 'Sur iPhone : ouvrez le partage Safari, puis "Ajouter à l’écran d’accueil".';
+      }
+      return 'Si le bouton natif ne s’ouvre pas, utilisez le menu du navigateur puis "Installer l’application".';
     }
   },
   watch: {
@@ -261,6 +325,14 @@ export default {
         this.avatarPreview = this.resolveAvatarUrl(newUser.avatar_url);
       }
     }
+  },
+  mounted() {
+    this.unsubscribeInstallState = subscribeToInstallState((state) => {
+      this.installState = state;
+    });
+  },
+  beforeUnmount() {
+    this.unsubscribeInstallState?.();
   },
   methods: {
     goBack() {
@@ -415,6 +487,29 @@ export default {
         this.errorMessage = "Impossible de copier l'adresse support.";
         this.showErrorPopup = true;
       }
+    },
+    async handleInstallPwa() {
+      const result = await promptPwaInstall();
+
+      if (result.outcome === 'ios-instructions' || result.outcome === 'manual-instructions' || result.outcome === 'dismissed') {
+        this.errorMessage = "L'installation directe n'est pas disponible ici. Ouvrez les infos iOS ou le menu du navigateur pour l'ajouter à l'écran d'accueil.";
+        this.showErrorPopup = true;
+        return;
+      }
+
+      if (result.outcome === 'accepted' || result.outcome === 'installed') {
+        this.successMessage = 'Pangeas est prête à être lancée comme une app.';
+        this.showSuccessPopup = true;
+        return;
+      }
+
+      if (result.outcome === 'unavailable') {
+        this.errorMessage = "L'installation n'est pas disponible depuis ce navigateur.";
+        this.showErrorPopup = true;
+      }
+    },
+    toggleInstallHelp() {
+      this.showSettingsIosInstructions = !this.showSettingsIosInstructions;
     }
   }
 };
@@ -815,6 +910,11 @@ button.account-row:hover {
   transform: translateX(0.18rem);
 }
 
+.interactive-row:hover {
+  background: rgba(255, 255, 255, 0.36);
+  transform: translateX(0.18rem);
+}
+
 button.account-row:active {
   transform: translateX(0.18rem) scale(0.99);
 }
@@ -846,6 +946,76 @@ button.account-row:active {
 .export-icon {
   background: var(--settings-cream);
   color: var(--settings-muted);
+}
+
+.install-icon {
+  background: var(--settings-green);
+  color: var(--settings-primary);
+}
+
+.install-icon img {
+  width: 1.25rem;
+  height: 1.25rem;
+  filter: brightness(0) saturate(100%) invert(16%) sepia(26%) saturate(832%) hue-rotate(333deg) brightness(96%) contrast(92%);
+}
+
+.install-row {
+  border-top: 1px solid rgba(212, 195, 190, 0.45);
+}
+
+.install-download-action {
+  display: grid;
+  place-items: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.install-download-action:hover {
+  background: rgba(93, 64, 55, 0.08);
+  transform: translateY(-1px);
+}
+
+.install-download-action img {
+  width: 1.2rem;
+  height: 1.2rem;
+  filter: brightness(0) saturate(100%) invert(32%) sepia(9%) saturate(991%) hue-rotate(333deg) brightness(90%) contrast(86%);
+}
+
+.install-help-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: fit-content;
+  margin-top: 0.42rem;
+  padding: 0;
+  color: var(--settings-primary-soft);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-align: left;
+}
+
+.install-help-toggle img {
+  width: 0.95rem;
+  height: 0.95rem;
+  filter: brightness(0) saturate(100%) invert(32%) sepia(9%) saturate(991%) hue-rotate(333deg) brightness(90%) contrast(86%);
+  transition: transform 0.2s ease;
+}
+
+.install-help-toggle[aria-expanded="true"] img {
+  transform: rotate(90deg);
+}
+
+.ios-install-help {
+  margin-top: 0.45rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(212, 195, 190, 0.55);
+  border-radius: 0.45rem;
+  background: rgba(253, 249, 244, 0.72);
+  color: var(--settings-primary-soft) !important;
 }
 
 .erase-icon {
@@ -889,6 +1059,19 @@ button.account-row:hover .icon-action {
   background: rgba(93, 64, 55, 0.08);
 }
 
+.interactive-row:hover .install-download-action,
+.interactive-row:hover .switch span {
+  background: rgba(93, 64, 55, 0.08);
+}
+
+.interactive-row:hover .switch input:checked + span {
+  background: var(--settings-primary-soft);
+}
+
+.interactive-row:hover .install-download-action img {
+  transform: translateY(-1px);
+}
+
 .icon-action img,
 .legal-card > a img {
   transition: transform 0.2s ease;
@@ -901,8 +1084,8 @@ button.account-row:hover .icon-action img,
 
 .switch {
   position: relative;
-  width: 3.25rem;
-  height: 2rem;
+  width: 2.85rem;
+  height: 1.72rem;
   flex: 0 0 auto;
 }
 
@@ -922,10 +1105,10 @@ button.account-row:hover .icon-action img,
 .switch span::before {
   content: "";
   position: absolute;
-  top: 0.25rem;
-  left: 0.25rem;
-  width: 1.5rem;
-  height: 1.5rem;
+  top: 0.22rem;
+  left: 0.22rem;
+  width: 1.28rem;
+  height: 1.28rem;
   border-radius: 999px;
   background: #fff;
   box-shadow: 0 2px 8px rgba(68, 42, 34, 0.2);
@@ -937,7 +1120,7 @@ button.account-row:hover .icon-action img,
 }
 
 .switch input:checked + span::before {
-  transform: translateX(1.25rem);
+  transform: translateX(1.12rem);
 }
 
 .danger-zone {
@@ -997,11 +1180,13 @@ button.account-row:hover .icon-action img,
   text-decoration: none;
 }
 
-.legal-card > a {
-  transition: background 0.2s ease, padding-left 0.2s ease, color 0.2s ease;
+.legal-card > a,
+.support-row {
+  transition: background 0.2s ease, padding-left 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
-.legal-card > a:hover {
+.legal-card > a:hover,
+.support-row:hover {
   padding-left: 1.6rem;
   background: rgba(255, 255, 255, 0.34);
   color: var(--settings-primary);
@@ -1057,6 +1242,10 @@ button.account-row:hover .icon-action img,
   transform: translateY(-1px);
 }
 
+.support-row:hover button {
+  background: rgba(93, 64, 55, 0.08);
+}
+
 .copy-feedback {
   position: absolute;
   right: 0;
@@ -1110,6 +1299,15 @@ button.account-row:hover .icon-action img,
 
   .desktop-nav {
     display: flex;
+  }
+
+  .settings-logo {
+    width: 10.25rem;
+    opacity: 0.86;
+  }
+
+  .topbar-title h1 {
+    margin-top: 0.15rem;
   }
 
   .credentials-card {
