@@ -7,7 +7,7 @@
 
       <div class="topbar-copy">
         <img src="/logo_mobile_pangeas.png" alt="Pangeas" class="brand-logo mobile-logo" />
-        <img src="/logo_marron.png" alt="Pangeas" class="brand-logo desktop-logo" />
+        <img src="/logo_marron_2.png" alt="Pangeas" class="brand-logo desktop-logo" />
         <strong>{{ compactTitle }}</strong>
       </div>
 
@@ -23,19 +23,20 @@
       </button>
     </header>
 
-    <section class="hero-section" aria-labelledby="place-title">
-      <img v-if="place.image_url" :src="place.image_url" :alt="place.name" class="hero-image" />
-      <div v-else class="hero-placeholder">
-        <img src="/logo_mobile_pangeas.png" alt="" aria-hidden="true" />
-      </div>
+    <div class="place-overview">
+      <section class="hero-section" aria-labelledby="place-title">
+        <img v-if="place.image_url" :src="place.image_url" :alt="place.name" class="hero-image" />
+        <div v-else class="hero-placeholder">
+          <img src="/logo_mobile_pangeas.png" alt="" aria-hidden="true" />
+        </div>
 
-      <span v-if="place.category" class="category-pill">
-        <i :class="categoryIcon" aria-hidden="true"></i>
-        {{ place.category }}
-      </span>
-    </section>
+        <span v-if="place.category" class="category-pill">
+          <i :class="categoryIcon" aria-hidden="true"></i>
+          {{ place.category }}
+        </span>
+      </section>
 
-    <div class="place-content">
+      <section class="place-summary">
       <section class="place-intro">
         <p class="eyebrow">Détails du lieu</p>
         <h1 id="place-title">{{ place.name }}</h1>
@@ -66,7 +67,10 @@
       <p v-if="!isLoggedIn" class="auth-callout">
         Connectez-vous pour lancer une visite, enregistrer ce lieu et gagner des points.
       </p>
+      </section>
+    </div>
 
+    <div class="place-content">
       <div class="detail-grid">
         <section class="content-card story-card">
           <h2>
@@ -325,10 +329,18 @@ onMounted(async () => {
   z-index: 2;
 }
 
+.place-summary,
 .place-content {
   width: min(100%, 68rem);
   margin: 0 auto;
+}
+
+.place-summary {
   padding: 1.65rem 1rem 0;
+}
+
+.place-content {
+  padding: 0 1rem;
 }
 
 .place-intro {
@@ -377,10 +389,19 @@ onMounted(async () => {
     padding: 0.65rem 2rem;
   }
 
-  .hero-section {
-    width: min(100% - 4rem, 68rem);
-    min-height: 30rem;
+  .place-overview {
+    display: grid;
+    grid-template-columns: minmax(0, 1.38fr) minmax(20rem, 0.62fr);
+    align-items: stretch;
+    gap: 1.5rem;
+    width: min(100% - 4rem, 76rem);
     margin: 1.5rem auto 0;
+  }
+
+  .hero-section {
+    width: 100%;
+    min-height: 28rem;
+    margin: 0;
     overflow: hidden;
     border-radius: 0.75rem;
     box-shadow: 0 16px 38px rgba(68, 42, 34, 0.12);
@@ -388,68 +409,80 @@ onMounted(async () => {
 
   .hero-image,
   .hero-placeholder {
-    height: 30rem;
+    height: 28rem;
+  }
+
+  .place-summary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: auto;
+    min-width: 0;
+    padding: 1.5rem;
+    border: 1px solid rgba(212, 195, 190, 0.58);
+    border-radius: 0.75rem;
+    background: rgba(247, 243, 238, 0.78);
+    box-shadow: var(--shadow-pangeas-card);
   }
 
   .place-content {
-    padding: 2rem 2rem 0;
+    width: min(100% - 4rem, 76rem);
+    padding: 2rem 0 0;
   }
 
   .place-intro h1 {
-    max-width: 48rem;
+    max-width: 100%;
+    font-size: clamp(2.35rem, 4vw, 4.35rem);
   }
 
   .detail-grid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(20rem, 0.85fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
+    gap: 1.25rem;
   }
 
   .story-card,
   .legend-card {
-    grid-row: span 2;
+    grid-row: auto;
   }
 
   .action-buttons {
     position: static;
     width: min(100%, 34rem);
-    margin-left: auto;
+    margin-inline: auto;
     background: transparent;
   }
 }
 
 @media (min-width: 1120px) {
-  .place-content {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 20rem;
-    gap: 1.2rem;
+  .place-overview {
+    grid-template-columns: minmax(0, 1.55fr) minmax(22rem, 0.45fr);
+    gap: 1.75rem;
   }
 
-  .place-intro,
-  .detail-grid {
-    grid-column: 1;
+  .hero-section {
+    min-height: 31rem;
   }
 
-  .reward-card,
-  .auth-callout,
-  .action-buttons {
-    grid-column: 2;
+  .hero-image,
+  .hero-placeholder {
+    height: 31rem;
   }
 
-  .reward-card {
+  .place-summary {
     position: sticky;
-    top: 5.5rem;
-    margin-top: 0;
+    top: 6rem;
+    align-self: start;
+    min-height: 31rem;
   }
 
-  .auth-callout {
-    align-self: start;
-    margin-top: -0.4rem;
+  .detail-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 1.35rem;
   }
 
   .action-buttons {
-    align-self: end;
-    grid-template-columns: 1fr;
-    width: 100%;
+    width: min(100%, 34rem);
   }
 }
 </style>

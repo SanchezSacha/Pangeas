@@ -1,16 +1,24 @@
 <template>
   <div class="mon-compte-page">
-    <Sidebar />
-
     <header class="profile-topbar">
       <button class="topbar-back" type="button" aria-label="Retour" @click="goBack">
         <img src="/icons/arrow-left.svg" alt="" aria-hidden="true" />
       </button>
 
       <div class="topbar-title">
-        <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="profile-logo" />
+        <picture>
+          <source media="(min-width: 768px)" srcset="/logo_marron_2.png" />
+          <img src="/logo_mobile_pangeas.png" alt="PANGEAS" class="profile-logo" />
+        </picture>
         <h1>Profil</h1>
       </div>
+
+      <nav class="desktop-nav" aria-label="Navigation principale">
+        <router-link :to="{ name: 'Home' }">Explorer</router-link>
+        <router-link class="active" :to="{ name: 'MonCompte' }">Favoris</router-link>
+        <router-link :to="{ name: 'MonCompte' }">Récompenses</router-link>
+        <router-link :to="{ name: 'Parametres' }">Paramètres</router-link>
+      </nav>
     </header>
 
     <section class="profil-section">
@@ -26,7 +34,6 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import EditAccount from '../account/EditAccount.vue';
-import Sidebar from "../Sidebar.vue";
 import FavoriteCarousel from "./FavoriteCarousel.vue";
 import StatsUser from "./StatsUser.vue";
 import HistoricPlaces from "./HistoricPlaces.vue";
@@ -76,6 +83,26 @@ onMounted(fetchUser);
   border-bottom: 1px solid rgba(212, 195, 190, 0.45);
   background: rgba(253, 249, 244, 0.92);
   backdrop-filter: blur(14px);
+}
+
+.desktop-nav {
+  display: none;
+  margin-left: auto;
+  gap: 1.6rem;
+}
+
+.desktop-nav a {
+  color: var(--color-pangeas-muted);
+  font-weight: 800;
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+}
+
+.desktop-nav a.active {
+  color: var(--color-pangeas-primary);
+  border-bottom: 2px solid var(--color-pangeas-primary);
 }
 
 .topbar-back {
@@ -132,11 +159,24 @@ onMounted(fetchUser);
 
 @media (min-width: 768px) {
   .mon-compte-page {
-    padding: 8.75rem 2rem 4rem calc(90px + 2rem);
+    padding: 8.75rem 4rem 4rem;
   }
 
   .profile-topbar {
     padding-inline: 4rem;
+  }
+
+  .desktop-nav {
+    display: flex;
+  }
+
+  .profile-logo {
+    width: 10.25rem;
+    opacity: 0.86;
+  }
+
+  .topbar-title h1 {
+    margin-top: 0.15rem;
   }
 }
 </style>
