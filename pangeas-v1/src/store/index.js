@@ -5,7 +5,12 @@ export default createStore({
         userPosition: null,
         currentVisit: null,
         visitPlaceFromDetail: null,
-        favorites: []
+        favorites: [],
+        isOnline: typeof navigator === 'undefined' ? true : navigator.onLine,
+        isSyncing: false,
+        pendingSyncCount: 0,
+        lastPlacesSyncAt: null,
+        usingOfflineData: false
     },
     mutations: {
         setUser(state, userData) {
@@ -42,6 +47,21 @@ export default createStore({
         },
         clearVisitPlaceFromDetail(state) {
             state.visitPlaceFromDetail = null;
+        },
+        setOnline(state, isOnline) {
+            state.isOnline = Boolean(isOnline);
+        },
+        setSyncing(state, isSyncing) {
+            state.isSyncing = Boolean(isSyncing);
+        },
+        setPendingSyncCount(state, count) {
+            state.pendingSyncCount = Number(count) || 0;
+        },
+        setLastPlacesSyncAt(state, timestamp) {
+            state.lastPlacesSyncAt = timestamp || null;
+        },
+        setUsingOfflineData(state, isUsingOfflineData) {
+            state.usingOfflineData = Boolean(isUsingOfflineData);
         }
     },
     getters: {
@@ -50,6 +70,7 @@ export default createStore({
         userPosition: state => state.userPosition,
         isFavorite: (state) => (placeId) => {
             return state.favorites.map(id => String(id)).includes(String(placeId));
-        }
+        },
+        hasPendingSync: state => state.pendingSyncCount > 0
     }
 });

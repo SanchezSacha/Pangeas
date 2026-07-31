@@ -129,6 +129,12 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import axios from '@/axios';
+import {
+  loadCachedPlace,
+  rememberFavoriteSnapshot,
+  rememberPlace,
+  setFavoriteOfflineAware
+} from '@/services/offlineService';
 
 const route = useRoute();
 const router = useRouter();
@@ -182,30 +188,43 @@ const normalizedActivities = computed(() => {
   return [];
 });
 
+const applyPlace = placeData => {
+  place.value = placeData;
+  parsedAnecdotes.value = Array.isArray(placeData.anecdote)
+      ? placeData.anecdote.filter(Boolean)
+      : placeData.anecdote?.split('\n').map(fact => fact.trim()).filter(Boolean) ?? [];
+};
+
 const fetchPlace = async () => {
   try {
     const res = await axios.get(`/api/places/${route.params.id}`, { withCredentials: true });
     const data = res.data;
 
     if (data.success && data.place) {
-      place.value = data.place;
-      parsedAnecdotes.value = Array.isArray(data.place.anecdote)
-          ? data.place.anecdote.filter(Boolean)
-          : data.place.anecdote?.split('\n').map(fact => fact.trim()).filter(Boolean) ?? [];
+      applyPlace(data.place);
+      await rememberPlace(data.place);
     }
   } catch (error) {
+    const cachedPlace = await loadCachedPlace(route.params.id);
+    if (cachedPlace) {
+      applyPlace(cachedPlace);
+      store.commit('setUsingOfflineData', true);
+      return;
+    }
     console.error('Erreur lors de la récupération du lieu:', error.response?.data || error.message);
   }
 };
 
 const fetchFavorites = async () => {
   if (!isLoggedIn.value) return;
+  if (!store.state.isOnline) return;
 
   try {
     const response = await axios.get('/api/favorites', { withCredentials: true });
     if (response.data.success) {
       const favoriteIds = response.data.favorites.map(favorite => favorite._id);
       store.commit('setFavorites', favoriteIds);
+      await rememberFavoriteSnapshot(response.data.favorites);
     }
   } catch (error) {
     console.error('Erreur lors de la récupération des favoris:', error.response?.data || error.message);
@@ -216,13 +235,7 @@ const toggleFavorite = async () => {
   if (!isLoggedIn.value || !place.value?._id) return;
 
   try {
-    if (isFavorite.value) {
-      await axios.delete(`/api/favorites/${place.value._id}`, { withCredentials: true });
-      store.commit('removeFavorite', place.value._id);
-    } else {
-      await axios.post('/api/favorites', { placeId: place.value._id }, { withCredentials: true });
-      store.commit('addFavorite', place.value._id);
-    }
+    await setFavoriteOfflineAware(place.value._id, !isFavorite.value);
   } catch (err) {
     console.error('Erreur lors du toggle favori :', err.response?.data || err.message);
   }

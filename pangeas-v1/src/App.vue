@@ -3,6 +3,7 @@
     <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
     <router-view :places="places" />
     <PwaInstallNudge />
+    <OfflineStatus />
     <MobileBottomNav v-if="showMobileBottomNav" @open-login="showLoginModal" @open-register="showRegisterModal"/>
     <transition name="fade">
       <div class="modal-overlay" v-if="showRegistration">
@@ -37,7 +38,15 @@ import MobileBottomNav from "./components/MobileBottomNav.vue";
 import Registration from "./components/modal/Registration.vue";
 import Connexion from "./components/modal/Connexion.vue";
 import PwaInstallNudge from "./components/PwaInstallNudge.vue";
+import OfflineStatus from "./components/OfflineStatus.vue";
 import store from './store';
+import {
+  forgetUser,
+  loadCachedPlaces,
+  rememberPlaces,
+  rememberUser,
+  syncPendingActions
+} from './services/offlineService';
 
 export default {
   name: 'App',
@@ -46,7 +55,8 @@ export default {
     MobileBottomNav,
     Registration,
     Connexion,
-    PwaInstallNudge
+    PwaInstallNudge,
+    OfflineStatus
   },
   data() {
     return {
@@ -99,16 +109,39 @@ export default {
     }
   },
   async mounted() {
+    const cachedPlaces = await loadCachedPlaces();
+    if (cachedPlaces.length > 0) {
+      this.places = cachedPlaces;
+    }
+
     try {
       const res = await axios.get('/api/places');
       this.places = res.data;
+      await rememberPlaces(res.data);
+    } catch (err) {
+      store.commit('setUsingOfflineData', cachedPlaces.length > 0);
+      console.warn(
+          cachedPlaces.length > 0
+              ? 'Réseau indisponible : utilisation des lieux enregistrés.'
+              : 'Aucun lieu disponible hors connexion.',
+          err.message
+      );
+    }
 
+    if (!store.state.isOnline) return;
+
+    try {
       const resUser = await axios.get('/api/auth/me', { withCredentials: true });
       if (resUser.data.success && resUser.data.user) {
-        store.commit('setUser', resUser.data.user);
+        await rememberUser(resUser.data.user);
+        await syncPendingActions(resUser.data.user);
+      } else {
+        await forgetUser();
       }
     } catch (err) {
-      console.error('Erreur lors du chargement:', err.message);
+      if (err.response) {
+        await forgetUser();
+      }
     }
   }
 };

@@ -56,6 +56,10 @@ import haversine from 'haversine-distance';
 import store from '../../store';
 import { createApp } from 'vue';
 import axios from '@/axios';
+import {
+  rememberCurrentVisit,
+  startVisitOfflineAware
+} from '@/services/offlineService';
 
 const placeMarkerTypes = {
   nature: {
@@ -162,8 +166,10 @@ export default {
   data() {
     return {
       map: null,
+      tileLayer: null,
       markersLayer: null,
       routeControl: null,
+      routeLine: null,
       validationInterval: null,
       popupInstance: null,
       ongoingVisit: null,
@@ -203,7 +209,7 @@ export default {
 
       this.map = L.map('map').setView([47, 2], 6);
 
-      L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      this.tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap France'
       }).addTo(this.map);
 
@@ -213,6 +219,9 @@ export default {
     },
     clearSearch() {
       this.searchQuery = '';
+    },
+    retryMapTiles() {
+      this.tileLayer?.redraw();
     },
     isCategorySelected(category) {
       return this.selectedCategories.includes(category);
@@ -284,6 +293,28 @@ export default {
 
         if (this.routeControl) {
           this.map.removeControl(this.routeControl);
+          this.routeControl = null;
+        }
+
+        if (this.routeLine) {
+          this.map.removeLayer(this.routeLine);
+          this.routeLine = null;
+        }
+
+        if (!this.$store.state.isOnline) {
+          this.routeLine = L.polyline([
+            [from.lat, from.lng],
+            [to.lat, to.lng]
+          ], {
+            color: '#5D4037',
+            weight: 5,
+            opacity: 0.85,
+            dashArray: '10 10',
+          }).addTo(this.map);
+
+          this.map.fitBounds(this.routeLine.getBounds(), { padding: [60, 60] });
+          this.markVisitAsOngoing(placeId, to);
+          return;
         }
 
         this.routeControl = L.Routing.control({
@@ -308,6 +339,10 @@ export default {
         if (this.routeControl) {
           this.map.removeControl(this.routeControl);
           this.routeControl = null;
+        }
+        if (this.routeLine) {
+          this.map.removeLayer(this.routeLine);
+          this.routeLine = null;
         }
         if (this.validationInterval) {
           clearInterval(this.validationInterval);
@@ -431,27 +466,39 @@ export default {
       });
     },
     markVisitAsOngoing(placeId, destinationCoords) {
-      this.$store.commit('setCurrentVisit', { place_id: placeId });
+      this.ongoingVisit = { place_id: placeId };
+      rememberCurrentVisit({ place_id: placeId });
       this.startValidationWatcher(placeId, destinationCoords);
     },
     loadOngoingVisit() {
+      if (!this.$store.state.isOnline) {
+        this.ongoingVisit = this.$store.state.currentVisit;
+        this.resumeOngoingVisit();
+        return;
+      }
+
       axios.get('/api/visit/ongoing', { withCredentials: true })
           .then((res) => {
             const visit = res.data.visit;
             if (!visit?.place_id) return;
 
             this.ongoingVisit = visit;
-            this.$store.commit('setCurrentVisit', visit);
+            rememberCurrentVisit(visit);
             this.resumeOngoingVisit();
           })
           .catch(err => {
-            console.error('Pas de visite en cours ou erreur :', err.response?.data || err.message);
+            this.ongoingVisit = this.$store.state.currentVisit;
+            this.resumeOngoingVisit();
+
+            if (err.response && err.response.status !== 404) {
+              console.warn('Impossible de récupérer la visite en cours :', err.response.data);
+            }
           });
     },
     resumeOngoingVisit() {
       if (!this.map || !this.ongoingVisit?.place_id || !this.places.length) return;
 
-      const place = this.places.find(p => p._id === this.ongoingVisit.place_id);
+      const place = this.places.find(p => String(p._id) === String(this.ongoingVisit.place_id));
       const userPos = this.$store.state.userPosition;
       const lat = Number(place?.coordinates?.lat);
       const lng = Number(place?.coordinates?.lng);
@@ -496,12 +543,10 @@ export default {
             this.map.setView([latitude, longitude], 16);
             this.map.fire('start-route', { from, to, placeId: placeFromDetail._id });
 
-            axios.post('/api/visit/start', {
+            startVisitOfflineAware({
               place_id: placeFromDetail._id,
               user_lat: latitude,
               user_lng: longitude
-            }, {
-              withCredentials: true
             }).catch((err) => {
               console.error('Erreur lors du demarrage de la visite :', err.response?.data || err.message);
             });
@@ -557,6 +602,8 @@ export default {
   },
 
   mounted() {
+    window.addEventListener('online', this.retryMapTiles);
+
     nextTick(() => {
       this.initMap(this.places);
       this.loadOngoingVisit();
@@ -576,6 +623,7 @@ export default {
     }
   },
   beforeUnmount() {
+    window.removeEventListener('online', this.retryMapTiles);
     if (this.validationInterval) clearInterval(this.validationInterval);
     if (this.map) {
       this.map.remove();

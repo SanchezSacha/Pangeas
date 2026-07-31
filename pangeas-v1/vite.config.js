@@ -11,8 +11,7 @@ export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
+      registerType: 'prompt',
       manifest: {
         id: '/',
         name: 'Pangeas',
@@ -53,15 +52,116 @@ export default defineConfig({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        navigateFallback: '/index.html',
+        navigateFallbackDenylist: [/^\/api\//],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: /^https?:\/\/localhost:3000\/api\/.*$/,
+            urlPattern: ({ request, url }) => (
+              request.method === 'GET' &&
+              url.origin === self.location.origin &&
+              /^\/api\/places(?:\/[^/]+)?\/?$/.test(url.pathname)
+            ),
             handler: 'NetworkFirst',
             options: {
-              cacheName: 'api-cache',
+              cacheName: 'pangeas-public-places',
+              networkTimeoutSeconds: 4,
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
               expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60
+                maxEntries: 150,
+                maxAgeSeconds: 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: ({ request, url }) => (
+              request.destination === 'image' &&
+              url.origin === self.location.origin
+            ),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pangeas-local-images',
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+              expiration: {
+                maxEntries: 200,
+                maxAgeSeconds: 30 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: ({ request, url }) => (
+              request.destination === 'image' &&
+              url.origin !== self.location.origin &&
+              !url.hostname.endsWith('.tile.openstreetmap.fr')
+            ),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pangeas-place-images',
+              precacheFallback: {
+                fallbackURL: '/logo_mobile_pangeas.png'
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+              expiration: {
+                maxEntries: 120,
+                maxAgeSeconds: 14 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: ({ request, url }) => (
+              request.destination === 'style' &&
+              url.origin !== self.location.origin
+            ),
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'pangeas-external-styles',
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 30 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: ({ request }) => request.destination === 'font',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pangeas-web-fonts',
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+              expiration: {
+                maxEntries: 30,
+                maxAgeSeconds: 365 * 24 * 60 * 60
+              }
+            }
+          },
+          {
+            urlPattern: ({ url }) => url.hostname.endsWith('.tile.openstreetmap.fr'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'pangeas-map-tiles',
+              precacheFallback: {
+                fallbackURL: '/map-tile-offline.svg'
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              },
+              expiration: {
+                maxEntries: 300,
+                maxAgeSeconds: 14 * 24 * 60 * 60,
+                purgeOnQuotaError: true
               }
             }
           }

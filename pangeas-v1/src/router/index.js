@@ -165,6 +165,9 @@ router.beforeEach(async (to, from, next) => {
     }
 
     if (to.meta.requiresAdmin) {
+        if (!store.state.isOnline) {
+            return next({ path: '/' });
+        }
         if (!user || user.role !== 'admin') {
             return next({ path: '/' });
         }
