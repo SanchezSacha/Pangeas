@@ -17,9 +17,9 @@
 </template>
 
 <script>
-import axios from "@/axios.js";
 import SuccessPopup from ".//SuccessPopup.vue";
 import ErrorPopup from ".//ErrorPopup.vue";
+import { validateVisitOfflineAware } from '@/services/offlineService';
 
 export default {
   props: ['placeId', 'userCoords'],
@@ -40,13 +40,15 @@ export default {
   methods: {
     async confirmVisit() {
       try {
-        const res = await axios.post('/api/visit/validate', {
+        const result = await validateVisitOfflineAware({
           place_id: this.placeId,
           user_lat: this.userCoords.latitude,
           user_lng: this.userCoords.longitude
-        }, { withCredentials: true });
+        });
 
-        this.successMessage = "Visite validée !";
+        this.successMessage = result.queued
+            ? "Validation enregistrée hors ligne. Elle sera synchronisée automatiquement."
+            : "Visite validée !";
         this.showSuccess = true;
       } catch (err) {
         this.errorMessage = "Erreur lors de la validation";

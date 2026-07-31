@@ -32,10 +32,14 @@
 <script>
 import {computed, ref} from 'vue';
 import { useStore } from 'vuex';
-import axios from '@/axios';
 import SuccessPopup from "../modal/SuccessPopup.vue";
 import ErrorPopup from "../modal/ErrorPopup.vue";
 import router from "../../router/index.js";
+import {
+  cancelVisitOfflineAware,
+  setFavoriteOfflineAware,
+  startVisitOfflineAware
+} from '@/services/offlineService';
 
 export default {
   components: {ErrorPopup, SuccessPopup},
@@ -88,15 +92,15 @@ export default {
               placeId: props.place._id
             });
 
-            axios.post('/api/visit/start', {
+            startVisitOfflineAware({
               place_id: props.place._id,
               user_lat: latitude,
               user_lng: longitude
-            }, {
-              withCredentials: true
             })
-                .then(() => {
-                  successMessage.value = "Visite commencée avec succès";
+                .then(({ queued }) => {
+                  successMessage.value = queued
+                      ? "Visite enregistrée hors ligne. Elle sera synchronisée automatiquement."
+                      : "Visite commencée avec succès";
                   showSuccess.value = true;
                 })
                 .catch((err) => {
@@ -129,11 +133,12 @@ export default {
       });
     };
     const cancelVisit = () => {
-      axios.delete('/api/visit/cancel', { withCredentials: true })
-          .then(() => {
-            store.commit('clearCurrentVisit');
+      cancelVisitOfflineAware()
+          .then(({ queued }) => {
             props.map.fire('cancel-route');
-            successMessage.value = "Visite annulée";
+            successMessage.value = queued
+                ? "Annulation enregistrée hors ligne."
+                : "Visite annulée";
             showSuccess.value = true;
           })
           .catch(err => {
@@ -146,13 +151,7 @@ export default {
       if (!isLoggedIn.value) return;
       const placeId = props.place._id;
       try {
-        if (isFavorite.value) {
-          await axios.delete(`/api/favorites/${placeId}`, { withCredentials: true });
-          store.commit('removeFavorite', placeId);
-        } else {
-          await axios.post('/api/favorites', { placeId }, { withCredentials: true });
-          store.commit('addFavorite', placeId);
-        }
+        await setFavoriteOfflineAware(placeId, !isFavorite.value);
       } catch (err) {
         console.error('Erreur lors du toggle favori :', err.response?.data || err.message);
       }

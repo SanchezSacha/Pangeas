@@ -33,6 +33,10 @@ import { ref, onMounted, computed } from 'vue';
 import { useStore } from 'vuex';
 import PlaceModal from '../map/PlaceModal.vue';
 import axios from "@/axios.js";
+import {
+  loadCachedPlaces,
+  rememberFavoriteSnapshot
+} from '@/services/offlineService';
 
 const store = useStore();
 const allFavoritePlaces = ref([]);
@@ -42,10 +46,17 @@ const isDesktop = computed(() => window.innerWidth >= 768);
 
 const visibleFavorites = computed(() =>
     allFavoritePlaces.value.filter(place =>
-        store.state.favorites.includes(place._id)
+        store.state.favorites.includes(String(place._id))
     )
 );
 const fetchFavorites = async () => {
+  const cachedPlaces = await loadCachedPlaces();
+  allFavoritePlaces.value = cachedPlaces.filter(place =>
+      store.state.favorites.includes(String(place._id))
+  );
+
+  if (!store.state.isOnline) return;
+
   try {
     const response = await axios.get('/api/favorites', {withCredentials: true});
     const data = response.data;
@@ -53,6 +64,7 @@ const fetchFavorites = async () => {
       allFavoritePlaces.value = data.favorites;
       const favoriteIds = data.favorites.map(place => place._id);
       store.commit('setFavorites', favoriteIds);
+      await rememberFavoriteSnapshot(data.favorites);
     }
   } catch (error) {
     console.error('Erreur lors de la récupération des favoris:', error);
