@@ -77,12 +77,12 @@
             <i class="fa-regular fa-map" aria-hidden="true"></i>
             L'âme du lieu
           </h2>
-          <div class="rich-text" v-html="place.description || 'Aucune description disponible pour ce lieu.'"></div>
+          <div class="rich-text" v-html="safeDescription"></div>
         </section>
 
         <section v-if="place.legend" class="legend-card">
           <h2>La Légende</h2>
-          <div class="rich-text" v-html="place.legend"></div>
+          <div class="rich-text" v-html="safeLegend"></div>
           <i class="fa-solid fa-star legend-mark" aria-hidden="true"></i>
         </section>
 
@@ -135,6 +135,7 @@ import {
   rememberPlace,
   setFavoriteOfflineAware
 } from '@/services/offlineService';
+import { sanitizeRichText } from '@/utils/sanitizeRichText';
 
 const route = useRoute();
 const router = useRouter();
@@ -157,6 +158,10 @@ const categoryIcons = {
 };
 
 const isLoggedIn = computed(() => store.getters.isLoggedIn);
+const safeDescription = computed(() => sanitizeRichText(
+  place.value?.description || 'Aucune description disponible pour ce lieu.'
+));
+const safeLegend = computed(() => sanitizeRichText(place.value?.legend));
 const isFavorite = computed(() => place.value?._id ? store.getters.isFavorite(place.value._id) : false);
 const favoriteIconClass = computed(() => (
   isFavorite.value ? 'fa-solid fa-heart favorite-icon' : 'fa-regular fa-heart favorite-icon'

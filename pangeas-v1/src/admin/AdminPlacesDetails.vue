@@ -44,7 +44,7 @@
           <dd class="col-sm-9">{{ place.region || '-' }}</dd>
 
           <dt class="col-sm-3">Description</dt>
-          <dd class="col-sm-9" v-html="place.description || '-'"></dd>
+          <dd class="col-sm-9" v-html="safeRichText(place.description || '-')"></dd>
 
           <dt class="col-sm-3">Légende</dt>
           <dd class="col-sm-9">{{ place.legend || '-' }}</dd>
@@ -79,6 +79,7 @@
 
 <script>
 import axios from "@/axios";
+import { sanitizeRichText } from '@/utils/sanitizeRichText';
 
 export default {
   name: "AdminPlaceDetails",
@@ -93,6 +94,9 @@ export default {
     this.fetchPlace();
   },
   methods: {
+    safeRichText(value) {
+      return sanitizeRichText(value);
+    },
     async fetchPlace() {
       this.loading = true;
       this.error = null;

@@ -1,5 +1,8 @@
 const DATABASE_NAME = 'pangeas-offline';
 const DATABASE_VERSION = 1;
+export const MAX_OUTBOX_ACTIONS = 100;
+const MAX_ACTION_BYTES = 64 * 1024;
+const MAX_STORAGE_USAGE_RATIO = 0.9;
 
 const STORES = {
     places: 'places',
@@ -148,8 +151,27 @@ export const enqueueOutboxAction = async action => {
         throw new Error('Une action hors ligne doit avoir un type.');
     }
 
+    const serializedSize = new TextEncoder().encode(JSON.stringify(normalizedAction)).byteLength;
+    if (serializedSize > MAX_ACTION_BYTES) {
+        throw new Error('Cette action est trop volumineuse pour la file hors ligne.');
+    }
+
+    const existingActions = await getOutboxActions();
+    const replacesExisting = action.replacePending && existingActions.some(existing => (
+        existing.entityKey === normalizedAction.entityKey
+    ));
+    if (!replacesExisting && existingActions.length >= MAX_OUTBOX_ACTIONS) {
+        throw new Error('La limite de 100 actions hors ligne est atteinte. Reconnectez-vous pour synchroniser.');
+    }
+
+    if (globalThis.navigator?.storage?.estimate) {
+        const { usage = 0, quota = 0 } = await globalThis.navigator.storage.estimate();
+        if (quota > 0 && usage / quota >= MAX_STORAGE_USAGE_RATIO) {
+            throw new Error('Le stockage de l\'appareil est presque plein. Synchronisez avant d\'ajouter une action.');
+        }
+    }
+
     if (action.replacePending) {
-        const existingActions = await getOutboxActions();
         const database = await openOfflineDatabase();
         const transaction = database.transaction(STORES.outbox, 'readwrite');
         const store = transaction.objectStore(STORES.outbox);

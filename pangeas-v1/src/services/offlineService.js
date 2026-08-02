@@ -35,7 +35,14 @@ let syncPromise = null;
 
 const isOnline = () => navigator.onLine !== false;
 const isNetworkError = error => !error?.response;
-const getUserId = user => user?._id || user?.id || user?.email || null;
+const getUserId = user => user?._id || user?.id || null;
+const createActionId = () => globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const toOfflineUser = user => user ? {
+    id: getUserId(user),
+    pseudo: user.pseudo || '',
+    avatar_url: user.avatar_url || null,
+    role: user.role || 'user'
+} : null;
 
 const safely = async (operation, fallback = null) => {
     try {
@@ -53,17 +60,21 @@ const updatePendingCount = async () => {
 };
 
 const executeAction = action => {
+    const config = {
+        withCredentials: true,
+        headers: action.id ? { 'Idempotency-Key': action.id } : {}
+    };
     switch (action.type) {
         case OFFLINE_ACTIONS.SET_FAVORITE:
             return action.payload.isFavorite
-                ? axios.post('/api/favorites', { placeId: action.payload.placeId }, { withCredentials: true })
-                : axios.delete(`/api/favorites/${action.payload.placeId}`, { withCredentials: true });
+                ? axios.post('/api/favorites', { placeId: action.payload.placeId }, config)
+                : axios.delete(`/api/favorites/${action.payload.placeId}`, config);
         case OFFLINE_ACTIONS.START_VISIT:
-            return axios.post('/api/visit/start', action.payload, { withCredentials: true });
+            return axios.post('/api/visit/start', action.payload, config);
         case OFFLINE_ACTIONS.CANCEL_VISIT:
-            return axios.delete('/api/visit/cancel', { withCredentials: true });
+            return axios.delete('/api/visit/cancel', config);
         case OFFLINE_ACTIONS.VALIDATE_VISIT:
-            return axios.post('/api/visit/validate', action.payload, { withCredentials: true });
+            return axios.post('/api/visit/validate', action.payload, config);
         case OFFLINE_ACTIONS.SUBMIT_PLACE:
             throw new Error('La soumission de lieu sera activée avec la future fonctionnalité.');
         default:
@@ -177,7 +188,7 @@ export const initializeOfflineService = async () => {
 
     store.subscribe(mutation => {
         if (mutation.type === 'setUser') {
-            safely(() => setMetadata(META.sessionUser, store.state.user));
+            safely(() => setMetadata(META.sessionUser, toOfflineUser(store.state.user)));
         }
 
         if (mutation.type === 'logout') {
@@ -230,7 +241,7 @@ export const rememberPlace = place => safely(() => savePlaces([place]));
 
 export const rememberUser = user => {
     store.commit('setUser', user);
-    return safely(() => setMetadata(META.sessionUser, user));
+    return safely(() => setMetadata(META.sessionUser, toOfflineUser(user)));
 };
 
 export const forgetUser = async () => {
@@ -274,6 +285,7 @@ export const setFavoriteOfflineAware = async (placeId, shouldBeFavorite) => {
 
     try {
         await executeAction({
+            id: createActionId(),
             type: OFFLINE_ACTIONS.SET_FAVORITE,
             payload: { placeId: normalizedId, isFavorite: shouldBeFavorite },
         });
@@ -307,17 +319,18 @@ export const queueOfflineAction = async action => {
 };
 
 const executeOrQueue = async action => {
+    const actionWithId = { ...action, id: action.id || createActionId() };
     if (!isOnline()) {
-        await queueOfflineAction(action);
+        await queueOfflineAction(actionWithId);
         return { queued: true, response: null };
     }
 
     try {
-        const response = await executeAction(action);
+        const response = await executeAction(actionWithId);
         return { queued: false, response };
     } catch (error) {
         if (!isNetworkError(error)) throw error;
-        await queueOfflineAction(action);
+        await queueOfflineAction(actionWithId);
         return { queued: true, response: null };
     }
 };
