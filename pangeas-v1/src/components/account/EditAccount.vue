@@ -6,7 +6,7 @@
     <div class="avatar-control">
       <label class="avatar-frame" for="avatar">
         <img :src="avatarPreview" alt="Avatar utilisateur" />
-        <input type="file" id="avatar" @change="handleAvatarChange" @input="markModified" hidden />
+        <input type="file" id="avatar" accept="image/jpeg,image/png,image/webp" @change="handleAvatarChange" hidden />
       </label>
       <span class="avatar-edit" aria-hidden="true">
         <img src="/icons/upload.svg" alt="" />
@@ -64,6 +64,7 @@
 import SuccessPopup from "../modal/SuccessPopup.vue";
 import ErrorPopup from "../modal/ErrorPopup.vue";
 import axios from "@/axios";
+import { getAvatarValidationError, getUploadErrorMessage, resolveAvatarUrl } from '@/utils/avatar';
 
 export default {
   name: 'EditAccount',
@@ -86,7 +87,6 @@ export default {
       },
       avatarFile: null,
       avatarPreview: '/logo_mobile_pangeas.png',
-      apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
       errors: {},
       showSuccessPopup: false,
       showErrorPopup: false,
@@ -101,7 +101,7 @@ export default {
       if (newUser) {
         this.form.pseudo = newUser.pseudo;
         this.form.bio = newUser.bio || '';
-        this.avatarPreview = newUser.avatar_url ? `${this.apiBaseUrl}${newUser.avatar_url}` : '/logo_mobile_pangeas.png';
+        this.avatarPreview = resolveAvatarUrl(newUser.avatar_url, '/logo_mobile_pangeas.png');
       }
     }
   },
@@ -109,8 +109,16 @@ export default {
     handleAvatarChange(e) {
       const file = e.target.files[0];
       if (file) {
+        const validationError = getAvatarValidationError(file);
+        if (validationError) {
+          this.errorMessage = validationError;
+          this.showErrorPopup = true;
+          e.target.value = '';
+          return;
+        }
         this.avatarFile = file;
         this.avatarPreview = URL.createObjectURL(file);
+        this.formModified = true;
       }
     },
     async submitUpdate() {
@@ -147,7 +155,7 @@ export default {
       } catch (error) {
         console.error('Erreur lors de la mise à jour :', error);
 
-        this.errorMessage = "Une erreur s’est produite.";
+        this.errorMessage = getUploadErrorMessage(error, "L'avatar n'a pas pu être enregistré.");
         this.showErrorPopup = true;
       }
     },
@@ -161,7 +169,7 @@ export default {
       if (this.user) {
         this.form.pseudo = this.user.pseudo;
         this.form.bio = this.user.bio || '';
-        this.avatarPreview = this.user.avatar_url ? `${this.apiBaseUrl}${this.user.avatar_url}` : '/logo_mobile_pangeas.png';
+        this.avatarPreview = resolveAvatarUrl(this.user.avatar_url, '/logo_mobile_pangeas.png');
         this.avatarFile = null;
         this.errors = {};
         this.formModified = false;
@@ -170,11 +178,10 @@ export default {
     }
   },
   mounted() {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
     if (this.user) {
       this.form.pseudo = this.user.pseudo;
       this.form.bio = this.user.bio || '';
-      this.avatarPreview = this.user.avatar_url ? `${apiBaseUrl}${this.user.avatar_url}` : '/logo_mobile_pangeas.png';
+      this.avatarPreview = resolveAvatarUrl(this.user.avatar_url, '/logo_mobile_pangeas.png');
     }
   }
 

@@ -10,6 +10,7 @@ import MentionsLegales from '../components/legal/MentionsLegales.vue';
 import HomeView from "../HomeView.vue";
 import ForgotPassword from "../components/auth/ForgotPassword.vue";
 import ResetPassword from "../components/auth/ResetPassword.vue";
+import RewardsView from "../components/rewards/RewardsView.vue";
 
 const routes = [
     {
@@ -27,6 +28,12 @@ const routes = [
         path: '/parametres',
         name: 'Parametres',
         component: SettingsAccount,
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/recompenses',
+        name: 'Recompenses',
+        component: RewardsView,
         meta: { requiresAuth: true }
     },
     {
@@ -100,6 +107,12 @@ const routes = [
                 path: 'places',
                 name: 'AdminPlaces',
                 component: () => import('@/admin/AdminPlaces.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'rewards',
+                name: 'AdminRewards',
+                component: () => import('@/admin/AdminRewards.vue'),
                 meta: { requiresAdmin: true }
             },
             {

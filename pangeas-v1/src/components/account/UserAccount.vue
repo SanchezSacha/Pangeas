@@ -16,7 +16,7 @@
       <nav class="desktop-nav" aria-label="Navigation principale">
         <router-link :to="{ name: 'Home' }">Explorer</router-link>
         <router-link class="active" :to="{ name: 'MonCompte' }">Favoris</router-link>
-        <router-link :to="{ name: 'MonCompte' }">Récompenses</router-link>
+        <router-link :to="{ name: 'Recompenses' }">Récompenses</router-link>
         <router-link :to="{ name: 'Parametres' }">Paramètres</router-link>
       </nav>
     </header>

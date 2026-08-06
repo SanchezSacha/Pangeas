@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 50%; height: 300px;">
+  <div class="pie-chart-shell">
     <PieChart :chart-data="pieChartData" :options="pieChartOptions" />
   </div>
 </template>
@@ -45,10 +45,13 @@ const pieChartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'right',
+      position: 'bottom',
       labels: {
-        boxWidth: 20,
-        padding: 15,
+        boxWidth: 14,
+        boxHeight: 14,
+        padding: 14,
+        usePointStyle: true,
+        pointStyle: 'rectRounded'
       }
     }
   }
@@ -72,3 +75,18 @@ watch(() => props.categoriesData, (newData) => {
   };
 }, { immediate: true });
 </script>
+
+<style scoped>
+.pie-chart-shell {
+  width: min(100%, 36rem);
+  height: 24rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 767px) {
+  .pie-chart-shell {
+    width: 100%;
+    height: 22rem;
+  }
+}
+</style>

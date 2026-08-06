@@ -16,7 +16,7 @@
       <nav class="desktop-nav" aria-label="Navigation principale">
         <router-link :to="{ name: 'Home' }">Explorer</router-link>
         <router-link :to="{ name: 'MonCompte' }">Favoris</router-link>
-        <router-link :to="{ name: 'MonCompte' }">Récompenses</router-link>
+        <router-link :to="{ name: 'Recompenses' }">Récompenses</router-link>
         <router-link class="active" :to="{ name: 'Parametres' }">Paramètres</router-link>
       </nav>
     </header>
@@ -29,7 +29,7 @@
             <img src="/logo_mobile_pangeas.png" alt="" />
           </span>
         </label>
-        <input id="settings-avatar" type="file" accept="image/*" @change="handleAvatarChange" hidden />
+        <input id="settings-avatar" type="file" accept="image/jpeg,image/png,image/webp" @change="handleAvatarChange" hidden />
         <button class="avatar-edit" type="button" aria-label="Modifier l'avatar" @click="openAvatarPicker">
           <img src="/icons/cog.svg" alt="" aria-hidden="true" />
         </button>
@@ -100,6 +100,19 @@
       </div>
 
       <div class="settings-card account-card">
+        <router-link v-if="user?.role === 'admin'" class="account-row admin-access" :to="{ name: 'AdminDashboard' }">
+          <span class="row-icon admin-icon" aria-hidden="true">
+            <img src="/icons/house.svg" alt="" />
+          </span>
+          <span class="row-copy">
+            <strong>Espace administrateur</strong>
+            <small>Gérer les lieux et les utilisateurs</small>
+          </span>
+          <span class="row-action icon-action" aria-hidden="true">
+            <img src="/icons/chevron-right.svg" alt="" />
+          </span>
+        </router-link>
+
         <div class="account-row interactive-row">
           <span class="row-icon geo-icon" aria-hidden="true">⌖</span>
           <span class="row-copy">
@@ -244,6 +257,7 @@ import EmailUpdateModal from '../modal/EmailUpdateModal.vue';
 import PasswordUpdateModal from '../modal/PasswordUpdateModal.vue';
 import DeleteAccountModal from '../modal/DeleteAccountModal.vue';
 import DeleteUserDataModal from '../modal/DeleteUserDataModal.vue';
+import { getAvatarValidationError, getUploadErrorMessage, resolveAvatarUrl as buildAvatarUrl } from '@/utils/avatar';
 import {
   getInstallState,
   promptPwaInstall,
@@ -269,7 +283,6 @@ export default {
       avatarFile: null,
       avatarPreview: '',
       previousAvatarPreview: '',
-      apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
       profileModified: false,
       geolocationEnabled: true,
       showEmailModal: false,
@@ -346,16 +359,18 @@ export default {
       document.getElementById('settings-avatar')?.click();
     },
     resolveAvatarUrl(avatarUrl) {
-      if (!avatarUrl) return '';
-      if (avatarUrl === '/img-avatar.jpg' || avatarUrl.endsWith('/img-avatar.jpg')) return '';
-      if (avatarUrl.startsWith('http://') || avatarUrl.startsWith('https://') || avatarUrl.startsWith('blob:')) {
-        return avatarUrl;
-      }
-      return `${this.apiBaseUrl}${avatarUrl}`;
+      return buildAvatarUrl(avatarUrl);
     },
     handleAvatarChange(event) {
       const file = event.target.files?.[0];
       if (!file) return;
+      const validationError = getAvatarValidationError(file);
+      if (validationError) {
+        this.errorMessage = validationError;
+        this.showErrorPopup = true;
+        event.target.value = '';
+        return;
+      }
       this.previousAvatarPreview = this.avatarPreview;
       this.avatarFile = file;
       this.avatarPreview = URL.createObjectURL(file);
@@ -440,6 +455,8 @@ export default {
       }
     },
     extractUpdateError(error, updateType) {
+      const apiMessage = getUploadErrorMessage(error, '');
+      if (apiMessage) return apiMessage;
       const responseData = error.response?.data;
       const preMatch = typeof responseData === 'string' ? responseData.match(/<pre>(.*?)<\/pre>/s) : null;
 
@@ -888,6 +905,10 @@ export default {
   padding: 1.35rem;
 }
 
+.admin-access {
+  display: none;
+}
+
 .account-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
@@ -941,6 +962,14 @@ button.account-row:active {
 .geo-icon {
   background: #f1c2b5;
   color: var(--settings-primary);
+}
+
+.admin-icon {
+  background: var(--settings-primary);
+}
+
+.admin-icon img {
+  filter: brightness(0) invert(1);
 }
 
 .export-icon {
@@ -1317,6 +1346,23 @@ button.account-row:hover .icon-action img,
   .credentials-card .field-block:last-of-type,
   .credentials-actions {
     grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .admin-access {
+    display: grid;
+    margin-bottom: 0.45rem;
+    border: 1px solid rgba(93, 64, 55, 0.2);
+    background: rgba(238, 225, 201, 0.5);
+    text-decoration: none;
+  }
+
+  .admin-access:hover,
+  .admin-access:focus-visible {
+    background: rgba(238, 225, 201, 0.82);
+    text-decoration: none;
+    transform: translateX(0.18rem);
   }
 }
 
