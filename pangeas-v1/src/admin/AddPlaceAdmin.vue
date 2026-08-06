@@ -88,6 +88,9 @@ import axios from "@/axios";
 
 export default {
   name: "AddPlaceAdmin",
+  inject: {
+    refreshPublicPlaces: { default: null },
+  },
   data() {
     return {
       form: {
@@ -112,6 +115,9 @@ export default {
 
       try {
         await axios.post("/api/admin/places", this.form, { withCredentials: true });
+        if (this.refreshPublicPlaces) {
+          await this.refreshPublicPlaces({ invalidateCache: true });
+        }
         this.$router.push("/admin/places");
       } catch (err) {
         console.error("Erreur lors de l'ajout :", err);

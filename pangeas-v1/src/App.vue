@@ -65,6 +65,11 @@ export default {
       showLogin: false,
     };
   },
+  provide() {
+    return {
+      refreshPublicPlaces: this.refreshPlaces,
+    };
+  },
   computed: {
     isAuthRoute() {
       return ['ForgotPassword', 'ResetPassword'].includes(this.$route.name);
@@ -90,6 +95,22 @@ export default {
     }
   },
   methods: {
+    async refreshPlaces({ invalidateCache = false } = {}) {
+      try {
+        if (invalidateCache && 'caches' in window) {
+          await window.caches.delete('pangeas-public-places');
+        }
+
+        const res = await axios.get('/api/places');
+        this.places = res.data;
+        await rememberPlaces(res.data);
+        store.commit('setUsingOfflineData', false);
+        return true;
+      } catch (err) {
+        console.warn('Impossible d actualiser les lieux.', err.message);
+        return false;
+      }
+    },
     showRegisterModal() {
       this.showRegistration = true;
     },
@@ -114,17 +135,13 @@ export default {
       this.places = cachedPlaces;
     }
 
-    try {
-      const res = await axios.get('/api/places');
-      this.places = res.data;
-      await rememberPlaces(res.data);
-    } catch (err) {
+    const placesRefreshed = await this.refreshPlaces();
+    if (!placesRefreshed) {
       store.commit('setUsingOfflineData', cachedPlaces.length > 0);
       console.warn(
           cachedPlaces.length > 0
               ? 'Réseau indisponible : utilisation des lieux enregistrés.'
-              : 'Aucun lieu disponible hors connexion.',
-          err.message
+              : 'Aucun lieu disponible hors connexion.'
       );
     }
 
@@ -149,7 +166,10 @@ export default {
 
 <style scoped>
 .app-shell.has-mobile-bottom-nav {
+  width: 100%;
+  min-width: 0;
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 @media (max-width: 767px) {

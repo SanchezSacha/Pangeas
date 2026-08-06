@@ -42,6 +42,7 @@
         <span>Explorateur</span>
         <span class="level">Niveau {{ userLevel }}</span>
       </div>
+
     </section>
 
     <div class="settings-divider" aria-hidden="true">

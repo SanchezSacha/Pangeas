@@ -79,6 +79,7 @@
 
 <script>
 import axios from "@/axios";
+import { resolveAvatarUrl } from "@/utils/avatar";
 
 export default {
   name: "UserDetails",
@@ -97,8 +98,7 @@ export default {
         settings: null,
         bio: ""
       },
-      loading: true,
-      apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+      loading: true
     };
   },
   computed: {
@@ -110,12 +110,10 @@ export default {
     const id = this.$route.params.id;
     try {
       const res = await axios.get(`/api/admin/users/${id}`, { withCredentials: true });
-      const raw = res.data.avatar_url;
-      const hasRaw = raw && raw !== 'null' && raw.toString().trim() !== '';
-      const avatarPath = hasRaw
-          ? (raw.toString().startsWith("http") ? raw.toString() : `${this.apiBaseUrl}${raw.toString()}`)
-          : `${window.location.origin}/img-avatar.jpg`;
-      this.user = { ...res.data, avatar_url: avatarPath };
+      this.user = {
+        ...res.data,
+        avatar_url: resolveAvatarUrl(res.data.avatar_url, "/img-avatar.jpg")
+      };
     } catch (err) {
       console.error("Erreur récupération détails user :", err);
     } finally {

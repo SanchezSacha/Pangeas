@@ -8,6 +8,15 @@
       <div v-if="success" class="alert alert-success">{{ success }}</div>
 
       <form v-if="!loading" @submit.prevent="submitForm" class="form-content">
+        <div class="mb-4 text-center">
+          <img
+              :src="avatarPreview"
+              alt="Avatar de l'utilisateur"
+              class="user-avatar rounded-circle"
+              @error="onAvatarError"
+          />
+        </div>
+
         <div class="mb-3">
           <label for="pseudo" class="form-label">Pseudo</label>
           <input
@@ -58,6 +67,7 @@
 
 <script>
 import axios from '@/axios';
+import { resolveAvatarUrl } from '@/utils/avatar';
 
 export default {
   name: 'UpdateUsersAdmin',
@@ -72,6 +82,7 @@ export default {
       submitting: false,
       error: '',
       success: '',
+      avatarPreview: '/img-avatar.jpg',
     };
   },
   async created() {
@@ -82,6 +93,7 @@ export default {
       this.user.pseudo = data.pseudo || '';
       this.user.email = data.email || '';
       this.user.role = data.role || 'user';
+      this.avatarPreview = resolveAvatarUrl(data.avatar_url, '/img-avatar.jpg');
     } catch (err) {
       this.error = 'Erreur lors du chargement de l’utilisateur.';
       console.error(err);
@@ -90,6 +102,10 @@ export default {
     }
   },
   methods: {
+    onAvatarError(event) {
+      event.target.onerror = null;
+      this.avatarPreview = '/img-avatar.jpg';
+    },
     async submitForm() {
       this.error = '';
       this.success = '';
@@ -138,6 +154,13 @@ export default {
 
 .form-content {
   width: 100%;
+}
+
+.user-avatar {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border: 3px solid var(--bs-primary);
 }
 </style>
 

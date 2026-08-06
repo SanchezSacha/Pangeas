@@ -60,6 +60,9 @@ import Swal from "sweetalert2";
 
 export default {
   name: "AdminPlaces",
+  inject: {
+    refreshPublicPlaces: { default: null },
+  },
   data() {
     return {
       places: [],
@@ -102,6 +105,9 @@ export default {
         try {
           await axios.delete(`/api/admin/places/${place._id}`, { withCredentials: true });
           await this.fetchPlaces();
+          if (this.refreshPublicPlaces) {
+            await this.refreshPublicPlaces({ invalidateCache: true });
+          }
           await Swal.fire("Supprimé !", "Le lieu a bien été supprimé.", "success");
         } catch (error) {
           console.error("Erreur suppression lieu :", error);

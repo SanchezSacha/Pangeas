@@ -1,6 +1,12 @@
 <template>
   <div class="stats-container">
-    <h1 class="section-title"><i class="fa-solid fa-chart-bar"></i> Statistiques</h1>
+    <div class="section-heading">
+      <span><i class="fa-solid fa-chart-bar"></i></span>
+      <div>
+        <p>Votre activité</p>
+        <h2>Statistiques</h2>
+      </div>
+    </div>
 
     <div class="stats-grid">
       <div class="stat-card">
@@ -93,43 +99,77 @@ onMounted(fetchStats);
 
 <style scoped>
 .stats-container {
-  margin: 3rem auto;
-  padding: 1.5rem;
-  border: 1px solid rgba(212, 195, 190, 0.58);
-  border-radius: 0.6rem;
-  background: rgba(247, 243, 238, 0.82);
-  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid rgba(205, 184, 176, 0.85);
+  border-radius: 0.9rem;
+  background: rgba(247, 243, 238, 0.88);
+  box-shadow: var(--shadow-pangeas-card);
   color: #1c1c19;
 }
 
-.section-title {
-  font-size: 1.45rem;
-  margin-bottom: 1.5rem;
+.section-heading {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
-  color: #442a22;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
 }
 
-.section-title i {
+.section-heading > span {
+  display: grid;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.75rem;
+  background: #e9d6ca;
+}
+
+.section-heading i {
   color: #5d4037;
+}
+
+.section-heading p {
+  color: #8a6d62;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  color: #442a22;
+  font-size: 1.35rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  min-width: 0;
   gap: 1rem;
 }
 
 .stat-card {
-  background: #fdf9f4;
-  border: 1px solid rgba(212, 195, 190, 0.58);
-  border-radius: 0.55rem;
+  min-width: 0;
+  background: var(--color-pangeas-card-tint);
+  border: 1px solid var(--color-pangeas-card-border);
+  border-radius: 0.75rem;
   padding: 1rem;
   text-align: center;
   box-shadow: 0 8px 22px rgba(68, 42, 34, 0.07);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: default;
+}
+
+.stat-card:nth-child(1) {
+  border-color: #b8d2c4;
+  background: linear-gradient(145deg, #dfeee6, #f2eee8);
+}
+
+.stat-card:nth-child(2) {
+  border-color: #d8c29c;
+  background: linear-gradient(145deg, #f1e3c7, #f4ece4);
 }
 
 .stat-card:hover {
@@ -157,8 +197,35 @@ onMounted(fetchStats);
 
 @media (max-width: 768px) {
   .stats-container {
-    margin: 2rem auto;
     padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+  }
+
+  .stat-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 0.7rem;
+    text-align: left;
+  }
+
+  .stat-icon {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+
+  .stat-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .stat-card p {
+    font-size: 0.7rem;
+    line-height: 1.2;
   }
 }
 </style>
