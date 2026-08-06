@@ -31,6 +31,10 @@
             <img src="/icons/user.svg" alt="Compte" />
             Mon compte
           </li>
+          <li :class="{ active: isActiveRoute('Recompenses') }" @click="goToRewards">
+            <img src="/icons/gift.svg" alt="Récompenses" />
+            Récompenses
+          </li>
           <li :class="{ active: isActiveRoute('Parametres') }" @click="goToSettings">
             <img src="/icons/cog.svg" alt="Paramètres" />
             Paramètres
@@ -102,6 +106,10 @@ export default {
     goToSettings() {
       this.isOpen = false;
       this.$router.push({name : 'Parametres'})
+    },
+    goToRewards() {
+      this.isOpen = false;
+      this.$router.push({ name: 'Recompenses' });
     },
     goToAdmin(){
       this.isOpen = false;

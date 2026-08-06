@@ -19,19 +19,17 @@
         </div>
       </div>
     </div>
-    <div class="card shadow mb-4">
-      <div class="card-body p-3 d-flex justify-content-center align-items-center flex-wrap" style="gap: 2rem;">
-
-        <div class="chart-container">
-          <h5 class="card-title mb-3">Répartition des lieux visités par catégorie</h5>
+    <div class="card shadow mb-4 dashboard-charts-card">
+      <div class="card-body dashboard-charts">
+        <div class="chart-panel">
+          <h5 class="card-title">Répartition des lieux visités par catégorie</h5>
           <StatsCharts v-if="stats" :statsData="stats" />
         </div>
 
-        <div class="chart-container">
-          <h5 class="card-title mb-3">Répartition catégories (détail)</h5>
+        <div class="chart-panel">
+          <h5 class="card-title">Répartition catégories (détail)</h5>
           <CategoriesPieChart v-if="categoriesData" :categoriesData="categoriesData" />
         </div>
-
       </div>
     </div>
 
@@ -116,20 +114,67 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.chart-container {
-  flex: 1 1 45%;
-  min-width: 300px;
-  height: 500px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
+.dashboard-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
 }
 
-.chart-container canvas {
+.chart-panel {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 28rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(212, 195, 190, 0.58);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.chart-panel .card-title {
+  margin-bottom: 1rem;
+  color: #442a22;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.chart-panel :deep(> div) {
+  width: 100%;
+  min-width: 0;
+}
+
+.chart-panel :deep(canvas) {
+  width: 100% !important;
   max-width: 100%;
-  height: auto !important;
+}
+
+@media (max-width: 991px) {
+  .dashboard-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .dashboard-charts-card {
+    margin-inline: -0.25rem;
+  }
+
+  .dashboard-charts {
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+
+  .chart-panel {
+    min-height: 25rem;
+    padding: 1rem 0.6rem;
+  }
+
+  .chart-panel .card-title {
+    padding-inline: 0.5rem;
+    font-size: 1.05rem;
+    line-height: 1.35;
+  }
 }
 
 </style>

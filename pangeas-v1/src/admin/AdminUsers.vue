@@ -26,16 +26,18 @@
             <td>{{ formatDate(user.created_at) }}</td>
             <td>{{ formatDate(user.updated_at) }}</td>
             <td class="text-center fw-bold">{{ user.visited_places_count }}</td>
-            <td class="text-center">
-              <button class="btn btn-info btn-sm me-2" @click="$router.push(`/admin/users/${user.id}`)">
+            <td class="text-center admin-actions-cell">
+              <div class="admin-actions">
+              <button class="btn btn-info btn-sm" @click="$router.push(`/admin/users/${user.id}`)">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="btn btn-warning btn-sm me-2" @click="$router.push(`/admin/users/${user.id}/edit`)">
+              <button class="btn btn-warning btn-sm" @click="$router.push(`/admin/users/${user.id}/edit`)">
                 <i class="fas fa-edit"></i>
               </button>
               <button class="btn btn-danger btn-sm" @click="openDeleteModal(user)">
                 <i class="fas fa-trash"></i>
               </button>
+              </div>
             </td>
           </tr>
           </tbody>

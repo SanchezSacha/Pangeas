@@ -72,7 +72,7 @@ export default {
     showSidebar() {
       return !this.$route.path.startsWith('/admin') &&
           !this.isAuthRoute &&
-          !['Parametres', 'MonCompte', 'PlaceDetail'].includes(this.$route.name);
+          !['Parametres', 'MonCompte', 'PlaceDetail', 'Recompenses'].includes(this.$route.name);
     },
     showMobileBottomNav() {
       return !this.$route.path.startsWith('/admin') && !this.isAuthRoute;

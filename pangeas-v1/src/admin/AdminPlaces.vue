@@ -29,16 +29,18 @@
               <td>{{ place.category }}</td>
               <td>{{ place.department }}</td>
               <td>{{ formatDate(place.created_at) }}</td>
-              <td class="text-center">
-                <button class="btn btn-info btn-sm me-2" @click="$router.push(`/admin/places/${place._id}`)">
+              <td class="text-center admin-actions-cell">
+                <div class="admin-actions">
+                <button class="btn btn-info btn-sm" @click="$router.push(`/admin/places/${place._id}`)">
                   <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn btn-warning btn-sm me-2" @click="$router.push(`/admin/places/${place._id}/edit`)">
+                <button class="btn btn-warning btn-sm" @click="$router.push(`/admin/places/${place._id}/edit`)">
                   <i class="fas fa-edit"></i>
                 </button>
                 <button class="btn btn-danger btn-sm" @click="openDeleteModal(place)">
                   <i class="fas fa-trash"></i>
                 </button>
+                </div>
               </td>
             </tr>
             <tr v-if="places.length === 0">

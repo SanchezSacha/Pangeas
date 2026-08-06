@@ -11,10 +11,10 @@
         <span>Favoris</span>
       </router-link>
 
-      <button class="nav-button coming-soon" type="button" aria-label="Récompenses bientôt disponibles">
+      <router-link :class="{ active: isActive('Recompenses') }" :to="{ name: 'Recompenses' }">
         <img src="/icons/gift.svg" alt="" aria-hidden="true" />
         <span>Récompenses</span>
-      </button>
+      </router-link>
 
       <router-link :class="{ active: isActive('Parametres') }" :to="{ name: 'Parametres' }">
         <img src="/icons/cog.svg" alt="" aria-hidden="true" />
@@ -121,11 +121,6 @@ export default {
 .register-action {
   background: var(--color-pangeas-bg);
   color: var(--color-pangeas-primary);
-}
-
-.coming-soon {
-  opacity: 0.68;
-  cursor: default;
 }
 
 @media (min-width: 768px) {
