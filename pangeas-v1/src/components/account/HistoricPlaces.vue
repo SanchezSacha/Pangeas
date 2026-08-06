@@ -1,6 +1,12 @@
 <template>
   <div class="historic-container">
-    <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i>Historique</h2>
+    <div class="section-heading">
+      <span><i class="fa-solid fa-clock-rotate-left"></i></span>
+      <div>
+        <p>Votre carnet</p>
+        <h2>Historique des lieux</h2>
+      </div>
+    </div>
 
     <div v-if="places.length === 0" class="no-visits">Aucun lieu visité pour l’instant.</div>
 
@@ -72,26 +78,49 @@ onMounted(fetchVisitedPlaces);
 
 <style scoped>
 .historic-container {
-  margin: 3rem auto;
-  padding: 1.5rem;
-  border: 1px solid rgba(212, 195, 190, 0.58);
-  border-radius: 0.6rem;
-  background: rgba(247, 243, 238, 0.82);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 1.25rem;
+  border: 1px solid rgba(205, 184, 176, 0.85);
+  border-radius: 0.9rem;
+  background: rgba(247, 243, 238, 0.88);
   color: #1c1c19;
-  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
+  box-shadow: var(--shadow-pangeas-card);
 }
 
-.section-title {
-  font-size: 1.45rem;
-  color: #442a22;
-  margin-bottom: 1.5rem;
+.section-heading {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
 }
 
-.section-title i {
+.section-heading > span {
+  display: grid;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.75rem;
+  background: #e2e9df;
+}
+
+.section-heading i {
   color: #5d4037;
+}
+
+.section-heading p {
+  color: #8a6d62;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  color: #442a22;
+  font-size: 1.35rem;
 }
 
 .no-visits {
@@ -107,15 +136,17 @@ onMounted(fetchVisitedPlaces);
 .places-grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-width: 0;
 }
 
 .place-card {
-  background: #fdf9f4;
-  border: 1px solid rgba(212, 195, 190, 0.58);
+  min-width: 0;
+  background: var(--color-pangeas-card-tint);
+  border: 1px solid var(--color-pangeas-card-border);
   border-radius: 0.55rem;
   overflow: hidden;
-  box-shadow: 0 8px 22px rgba(68, 42, 34, 0.07);
+  box-shadow: 0 8px 22px rgba(68, 42, 34, 0.09);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -180,12 +211,48 @@ onMounted(fetchVisitedPlaces);
 
 @media (max-width: 768px) {
   .historic-container {
-    margin: 2rem auto;
     padding: 1rem;
   }
 
   .places-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .place-card {
+    display: grid;
+    grid-template-columns: 6.25rem minmax(0, 1fr);
+    align-items: stretch;
+  }
+
+  .place-img {
+    height: 100%;
+    min-height: 6.5rem;
+  }
+
+  .place-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    padding: 0.8rem;
+  }
+
+  .place-info h3 {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 0.92rem;
+  }
+
+  .date {
+    font-size: 0.73rem;
+  }
+
+  .badge {
+    font-size: 0.68rem;
   }
 }
 

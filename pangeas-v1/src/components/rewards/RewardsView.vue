@@ -20,16 +20,12 @@
     </header>
 
     <div class="rewards-content">
-      <section class="points-card" aria-labelledby="points-label">
-        <img src="/icons/badge-check.svg" alt="" />
-        <p id="points-label">Points d’exploration</p>
-        <strong v-if="!loadingSummary">
-          {{ formatNumber(availablePoints) }}
-          <small>pts</small>
-        </strong>
-        <span v-else class="points-skeleton" aria-label="Chargement du solde"></span>
-        <span>Solde disponible</span>
-      </section>
+      <PointsProgressCard
+        external
+        :points-summary="summary"
+        :rewards="rewards"
+        :loading="loadingSummary || loadingRewards"
+      />
 
       <div class="tabs" role="tablist" aria-label="Types de récompenses">
         <button
@@ -272,6 +268,7 @@
 import { computed, defineComponent, h, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from '@/axios.js';
+import PointsProgressCard from '../PointsProgressCard.vue';
 
 const EmptyState = defineComponent({
   props: { title: String, text: String, retry: Boolean },
@@ -555,57 +552,6 @@ onMounted(() => Promise.all([loadSummary(), loadRewards(), loadCampaigns()]));
   width: min(100%, 72rem);
   margin: auto;
 }
-.points-card {
-  display: grid;
-  justify-items: center;
-  min-height: 12.2rem;
-  padding: 2rem 1.5rem;
-  border: 1px solid #351f1924;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, #54372e, #79574d 52%, #614238);
-  box-shadow: 0 12px 24px #442a2229;
-  color: #f9eee7;
-  text-align: center;
-}
-.points-card > img {
-  width: 1.6rem;
-  filter: brightness(0) saturate(100%) invert(82%) sepia(16%);
-  opacity: 0.85;
-}
-.points-card p {
-  margin-top: 0.45rem;
-  color: #dec0b5;
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-.points-card strong {
-  margin-top: 0.35rem;
-  font-family: var(--font-logo);
-  font-size: clamp(2.7rem, 12vw, 4rem);
-  line-height: 1;
-}
-.points-card strong small {
-  font-family: var(--font-content);
-  font-size: 0.9rem;
-  font-weight: 400;
-}
-.points-card > span:last-child {
-  margin-top: 0.55rem;
-  color: #f9eee7b3;
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.points-skeleton {
-  width: 10rem;
-  height: 3.5rem;
-  margin-top: 0.45rem;
-  border-radius: 0.5rem;
-  background: #ffffff1f;
-  animation: pulse 1.3s infinite;
-}
 .tabs {
   display: flex;
   gap: 1.6rem;
@@ -709,10 +655,10 @@ onMounted(() => Promise.all([loadSummary(), loadRewards(), loadCampaigns()]));
 .coupon-offer,
 .donation-card {
   overflow: hidden;
-  border: 1px solid var(--color-pangeas-line);
+  border: 1px solid var(--color-pangeas-card-border);
   border-radius: 0.85rem;
-  background: var(--color-pangeas-surface);
-  box-shadow: 0 2px 5px #442a2208;
+  background: var(--color-pangeas-card-tint);
+  box-shadow: 0 5px 16px #442a2212;
 }
 .reward-visual {
   position: relative;
@@ -1056,11 +1002,6 @@ onMounted(() => Promise.all([loadSummary(), loadRewards(), loadCampaigns()]));
   opacity: 0;
   transform: translateY(0.5rem);
 }
-@keyframes pulse {
-  50% {
-    opacity: 0.5;
-  }
-}
 @keyframes shimmer {
   to {
     background-position: -220%;
@@ -1095,10 +1036,6 @@ onMounted(() => Promise.all([loadSummary(), loadRewards(), loadCampaigns()]));
   .topbar-brand h1 {
     margin-top: 0.15rem;
   }
-  .points-card {
-    min-height: 14rem;
-    padding-block: 2.5rem;
-  }
   .dialog-backdrop {
     place-items: center;
   }
@@ -1127,6 +1064,12 @@ onMounted(() => Promise.all([loadSummary(), loadRewards(), loadCampaigns()]));
   }
   .low-stock {
     text-align: left;
+  }
+}
+
+@media (max-width: 767px) {
+  .rewards-page {
+    padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
   }
 }
 </style>

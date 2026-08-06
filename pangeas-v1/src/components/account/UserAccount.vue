@@ -22,10 +22,24 @@
     </header>
 
     <section class="profil-section">
-      <EditAccount v-if="user" :user="user" @updateUser="handleUserUpdate" />
-      <FavoriteCarousel />
-      <StatsUser />
-      <HistoricPlaces />
+      <EditAccount
+        v-if="user"
+        :user="user"
+        @updateUser="handleUserUpdate"
+      />
+
+      <div class="account-dashboard">
+        <StatsUser />
+        <AccountRewards
+          :redemptions="redemptions"
+          :donations="donations"
+          :loading="loadingDashboard"
+          :load-error="dashboardError"
+          @retry="fetchDashboard"
+        />
+        <FavoriteCarousel />
+        <HistoricPlaces />
+      </div>
     </section>
   </div>
 </template>
@@ -37,9 +51,14 @@ import EditAccount from '../account/EditAccount.vue';
 import FavoriteCarousel from "./FavoriteCarousel.vue";
 import StatsUser from "./StatsUser.vue";
 import HistoricPlaces from "./HistoricPlaces.vue";
+import AccountRewards from './AccountRewards.vue';
 import axios from "@/axios.js";
 
 const user = ref(null);
+const redemptions = ref([]);
+const donations = ref([]);
+const loadingDashboard = ref(true);
+const dashboardError = ref(false);
 const router = useRouter();
 
 async function fetchUser() {
@@ -52,6 +71,22 @@ async function fetchUser() {
     console.error("Erreur lors de la récupération de l'utilisateur :", error);
   }
 }
+
+async function fetchDashboard() {
+  loadingDashboard.value = true;
+  dashboardError.value = false;
+
+  const requests = await Promise.allSettled([
+    axios.get('/api/rewards/mine'),
+    axios.get('/api/donations/mine'),
+  ]);
+
+  if (requests[0].status === 'fulfilled') redemptions.value = requests[0].value.data.redemptions || [];
+  if (requests[1].status === 'fulfilled') donations.value = requests[1].value.data.donations || [];
+
+  dashboardError.value = requests.some(request => request.status === 'rejected');
+  loadingDashboard.value = false;
+}
 function handleUserUpdate(updatedUser) {
   user.value = updatedUser;
 }
@@ -60,15 +95,19 @@ function goBack() {
   router.back();
 }
 
-onMounted(fetchUser);
+onMounted(() => Promise.all([fetchUser(), fetchDashboard()]));
 </script>
 
 <style scoped>
 .mon-compte-page {
+  width: 100%;
+  max-width: 100vw;
+  min-width: 0;
   background: var(--color-pangeas-bg);
   min-height: 100vh;
   padding: 8.25rem 1rem 6rem;
   color: #1c1c19;
+  overflow-x: clip;
 }
 
 .profile-topbar {
@@ -154,7 +193,22 @@ onMounted(fetchUser);
 
 .profil-section {
   width: min(100%, 68rem);
+  min-width: 0;
   margin: 0 auto;
+}
+
+.account-dashboard {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  gap: 1.25rem;
+}
+
+.account-dashboard > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
 }
 
 @media (min-width: 768px) {
@@ -177,6 +231,16 @@ onMounted(fetchUser);
 
   .topbar-title h1 {
     margin-top: 0.15rem;
+  }
+
+  .account-dashboard {
+    gap: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .mon-compte-page {
+    padding-inline: 0.75rem;
   }
 }
 </style>

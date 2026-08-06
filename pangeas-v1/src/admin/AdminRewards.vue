@@ -5,7 +5,7 @@
         <h1 class="h3 mb-1 text-gray-800">Récompenses</h1>
         <p class="mb-0 text-muted">Gérez les coupons, les campagnes de dons et leurs partenaires.</p>
       </div>
-      <button class="btn btn-pangeas" type="button" @click="openCreateForTab">
+      <button class="btn btn-primary" type="button" @click="openCreateForTab">
         <i class="fas fa-plus me-2"></i>
         {{ createLabel }}
       </button>
@@ -757,7 +757,7 @@ async function confirmToggle(title, text, confirmText) {
       showCancelButton: true,
       confirmButtonText: confirmText,
       cancelButtonText: 'Annuler',
-      confirmButtonColor: '#5d4037',
+      confirmButtonColor: '#4e73df',
     })
   ).isConfirmed;
 }
@@ -873,11 +873,14 @@ function couponStatus(value) {
 
 <style scoped>
 .admin-rewards {
-  --admin-primary: #5d4037;
-  --admin-dark: #442a22;
-  --admin-cream: #eee1c9;
-  --admin-line: #e3d8d3;
-  color: #352722;
+  --admin-primary: #4e73df;
+  --admin-dark: #2e59d9;
+  --admin-cream: #eaecf4;
+  --admin-line: #e3e6f0;
+  --admin-muted: #858796;
+  --admin-text: #5a5c69;
+  --admin-surface-soft: #f8f9fc;
+  color: var(--admin-text);
 }
 .page-heading {
   display: flex;
@@ -885,16 +888,6 @@ function couponStatus(value) {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
-}
-.btn-pangeas {
-  border-color: var(--admin-dark);
-  background: var(--admin-primary);
-  color: #fff;
-  font-weight: 700;
-}
-.btn-pangeas:hover {
-  background: var(--admin-dark);
-  color: #fff;
 }
 .summary-card {
   border: 0;
@@ -905,7 +898,7 @@ function couponStatus(value) {
   display: block;
 }
 .summary-card small {
-  color: #81736e;
+  color: var(--admin-muted);
   font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -921,7 +914,7 @@ function couponStatus(value) {
   width: 2.8rem;
   height: 2.8rem;
   border-radius: 50%;
-  background: #f3eae3;
+  background: #eaecf4;
   color: var(--admin-primary);
 }
 .admin-tabs {
@@ -930,7 +923,7 @@ function couponStatus(value) {
   margin-bottom: 1rem;
   padding: 0.35rem;
   overflow-x: auto;
-  border: 1px solid #e1d7d2;
+  border: 1px solid var(--admin-line);
   border-radius: 0.7rem;
   background: #fff;
 }
@@ -941,14 +934,14 @@ function couponStatus(value) {
   min-height: 2.8rem;
   padding: 0.65rem 1rem;
   border-radius: 0.5rem;
-  color: #6c5d58;
+  color: var(--admin-text);
   font-weight: 700;
   white-space: nowrap;
 }
 .admin-tabs button.active {
   background: var(--admin-primary);
   color: #fff;
-  box-shadow: 0 5px 14px #442a2229;
+  box-shadow: 0 5px 14px rgba(78, 115, 223, 0.24);
 }
 .admin-tabs small {
   display: grid;
@@ -957,8 +950,8 @@ function couponStatus(value) {
   height: 1.3rem;
   padding: 0 0.25rem;
   border-radius: 1rem;
-  background: #eee1c9;
-  color: #442a22;
+  background: #eaecf4;
+  color: #2e59d9;
   font-size: 0.65rem;
 }
 .loading-card {
@@ -966,7 +959,7 @@ function couponStatus(value) {
   justify-items: center;
   gap: 0.8rem;
   padding: 4rem;
-  color: #71645f;
+  color: var(--admin-muted);
 }
 .content-card {
   overflow: hidden;
@@ -985,7 +978,7 @@ function couponStatus(value) {
   display: grid;
 }
 .card-header small {
-  color: #81736e;
+  color: var(--admin-muted);
 }
 .filter-select {
   width: auto;
@@ -993,8 +986,8 @@ function couponStatus(value) {
 }
 .table thead th {
   border: 0;
-  background: #f8f5f3;
-  color: #776964;
+  background: var(--admin-surface-soft);
+  color: var(--admin-muted);
   font-size: 0.7rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -1008,14 +1001,14 @@ function couponStatus(value) {
   display: block;
 }
 .table td > small {
-  color: #8b7d77;
+  color: var(--admin-muted);
 }
 .status-badge {
   display: inline-flex;
   padding: 0.25rem 0.55rem;
   border-radius: 2rem;
-  background: #ece8e5;
-  color: #675b57;
+  background: #eaecf4;
+  color: var(--admin-text);
   font-size: 0.66rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -1023,23 +1016,23 @@ function couponStatus(value) {
 .status-badge.active,
 .status-badge.available,
 .status-badge.confirmed {
-  background: #d8ecdf;
-  color: #27563c;
+  background: #d7f3e9;
+  color: #13855c;
 }
 .status-badge.inactive,
 .status-badge.expired,
 .status-badge.cancelled {
-  background: #f4d9d5;
-  color: #8f332b;
+  background: #fbe0dd;
+  color: #be2617;
 }
 .status-badge.pending,
 .status-badge.reserved {
-  background: #f7e9c9;
-  color: #7b5b16;
+  background: #fdf0cd;
+  color: #8a6500;
 }
 .status-badge.used {
-  background: #dce5f2;
-  color: #365779;
+  background: #d9f1f5;
+  color: #258391;
 }
 .actions {
   white-space: nowrap;
@@ -1051,39 +1044,39 @@ function couponStatus(value) {
   height: 2.15rem;
   margin-left: 0.25rem;
   border-radius: 0.45rem;
-  background: #f0ecea;
-  color: #665853;
+  background: #eaecf4;
+  color: var(--admin-text);
   transition: 0.2s;
 }
 .btn-icon:hover {
   transform: translateY(-1px);
 }
 .btn-icon.view {
-  background: #e2edf5;
-  color: #2d617f;
+  background: #d9f1f5;
+  color: #258391;
 }
 .btn-icon.codes {
-  background: #eee6f5;
-  color: #67467f;
+  background: #e2e8fb;
+  color: #2e59d9;
 }
 .btn-icon.edit {
-  background: #f8ebca;
-  color: #816018;
+  background: #fdf0cd;
+  color: #8a6500;
 }
 .btn-icon.remove {
-  background: #f5deda;
-  color: #9b382e;
+  background: #fbe0dd;
+  color: #be2617;
 }
 .btn-icon.restore {
-  background: #dcecdf;
-  color: #286344;
+  background: #d7f3e9;
+  color: #13855c;
 }
 .empty-row {
   display: grid;
   justify-items: center;
   gap: 0.5rem;
   padding: 2rem;
-  color: #978983;
+  color: var(--admin-muted);
   text-align: center;
 }
 .empty-row i {
@@ -1101,7 +1094,7 @@ function couponStatus(value) {
   padding: 1.1rem;
   border: 1px solid var(--admin-line);
   border-radius: 0.7rem;
-  background: #fdfbf9;
+  background: #fff;
 }
 .campaign-head {
   display: flex;
@@ -1118,14 +1111,13 @@ function couponStatus(value) {
   border: 1px solid var(--admin-line);
   border-radius: 50%;
   background: #fff;
-  color: var(--admin-dark);
-  font-family: var(--font-title);
+  color: var(--admin-primary);
   font-size: 1.2rem;
 }
 .campaign-card > small {
   display: block;
   margin-top: 0.8rem;
-  color: #8a7770;
+  color: var(--admin-muted);
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -1133,13 +1125,13 @@ function couponStatus(value) {
 .campaign-card h2,
 .partner-card h2 {
   margin: 0.2rem 0;
-  color: var(--admin-dark);
+  color: var(--admin-text);
   font-size: 1.05rem;
 }
 .campaign-card > p,
 .partner-card p {
   min-height: 2.6rem;
-  color: #766762;
+  color: var(--admin-muted);
   font-size: 0.82rem;
 }
 .campaign-numbers {
@@ -1151,14 +1143,14 @@ function couponStatus(value) {
 .campaign-numbers span {
   padding: 0.55rem;
   border-radius: 0.45rem;
-  background: #fff;
+  background: var(--admin-surface-soft);
 }
 .campaign-numbers small,
 .campaign-numbers strong {
   display: block;
 }
 .campaign-numbers small {
-  color: #93837d;
+  color: var(--admin-muted);
   font-size: 0.63rem;
 }
 .campaign-numbers strong {
@@ -1172,15 +1164,15 @@ function couponStatus(value) {
   height: 0.38rem;
   overflow: hidden;
   border-radius: 1rem;
-  background: #e5ddda;
+  background: #eaecf4;
 }
 .campaign-progress i {
   display: block;
   height: 100%;
-  background: #679079;
+  background: #1cc88a;
 }
 .campaign-progress small {
-  color: #8c7d78;
+  color: var(--admin-muted);
 }
 .campaign-card footer {
   display: flex;
@@ -1189,7 +1181,7 @@ function couponStatus(value) {
   margin-top: 0.8rem;
   padding-top: 0.7rem;
   border-top: 1px solid var(--admin-line);
-  color: #867670;
+  color: var(--admin-muted);
   font-size: 0.75rem;
 }
 .partner-grid {
@@ -1221,7 +1213,7 @@ function couponStatus(value) {
   display: grid;
   place-items: center;
   padding: 1rem;
-  background: #24171399;
+  background: rgba(37, 42, 64, 0.58);
   backdrop-filter: blur(3px);
 }
 .admin-modal {
@@ -1230,7 +1222,7 @@ function couponStatus(value) {
   overflow: auto;
   border-radius: 0.8rem;
   background: #fff;
-  box-shadow: 0 24px 70px #1e15114d;
+  box-shadow: 0 24px 70px rgba(37, 42, 64, 0.28);
 }
 .admin-modal > header {
   position: sticky;
@@ -1244,19 +1236,19 @@ function couponStatus(value) {
   background: #fff;
 }
 .admin-modal header small {
-  color: #8c7770;
+  color: var(--admin-muted);
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
 }
 .admin-modal h2 {
   margin: 0;
-  color: var(--admin-dark);
+  color: var(--admin-text);
   font-size: 1.35rem;
 }
 .admin-modal header button {
   font-size: 1.8rem;
-  color: #766762;
+  color: var(--admin-muted);
 }
 .admin-modal form,
 .reward-detail {
@@ -1276,7 +1268,7 @@ function couponStatus(value) {
   grid-column: 1/-1;
 }
 .form-field > span {
-  color: #6f615c;
+  color: var(--admin-text);
   font-size: 0.75rem;
   font-weight: 800;
 }
@@ -1286,17 +1278,17 @@ function couponStatus(value) {
 .codes-table select {
   width: 100%;
   padding: 0.65rem 0.75rem;
-  border: 1px solid #d8cbc6;
+  border: 1px solid #d1d3e2;
   border-radius: 0.45rem;
-  background: #fbf9f8;
-  color: #382a25;
+  background: #fff;
+  color: var(--admin-text);
   outline: none;
 }
 .form-field input:focus,
 .form-field select:focus,
 .form-field textarea:focus {
   border-color: var(--admin-primary);
-  box-shadow: 0 0 0 3px #5d40371f;
+  box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.16);
 }
 .switch-field {
   display: flex;
@@ -1320,7 +1312,7 @@ function couponStatus(value) {
   background: var(--admin-primary);
   color: #fff;
   font-weight: 700;
-  box-shadow: 0 4px 10px #442a2226;
+  box-shadow: 0 4px 10px rgba(78, 115, 223, 0.2);
 }
 .admin-modal :deep(.modal-submit:hover),
 .admin-modal :deep(.modal-submit:focus) {
@@ -1329,8 +1321,8 @@ function couponStatus(value) {
   color: #fff;
 }
 .admin-modal :deep(.modal-submit:disabled) {
-  border-color: #927d75;
-  background: #927d75;
+  border-color: #b7b9cc;
+  background: #b7b9cc;
   color: #fff;
   opacity: 0.72;
 }
@@ -1340,8 +1332,8 @@ function couponStatus(value) {
   margin-bottom: 1rem;
   padding: 0.8rem;
   border-radius: 0.5rem;
-  background: #f9f0df;
-  color: #72571e;
+  background: #fdf0cd;
+  color: #8a6500;
 }
 .codes-help p {
   margin: 0;
@@ -1358,18 +1350,17 @@ function couponStatus(value) {
   width: 4rem;
   height: 4rem;
   border-radius: 50%;
-  background: #efe3d9;
-  color: #442a22;
-  font-family: var(--font-title);
+  background: #eaecf4;
+  color: var(--admin-primary);
   font-size: 1.6rem;
 }
 .detail-summary h3 {
   margin: 0.1rem 0;
-  color: #442a22;
+  color: var(--admin-text);
 }
 .detail-summary p {
   margin: 0;
-  color: #776762;
+  color: var(--admin-muted);
 }
 .detail-stats {
   display: grid;
@@ -1380,7 +1371,7 @@ function couponStatus(value) {
 .detail-stats span {
   padding: 0.8rem;
   border-radius: 0.5rem;
-  background: #f6f2ef;
+  background: var(--admin-surface-soft);
 }
 .detail-stats small,
 .detail-stats strong {
@@ -1403,11 +1394,11 @@ function couponStatus(value) {
   border-radius: 0.45rem;
 }
 .codes-table code {
-  color: #442a22;
+  color: var(--admin-primary);
   font-weight: 800;
 }
 .codes-table small {
-  color: #887873;
+  color: var(--admin-muted);
 }
 .modal-fade-enter-active,
 .modal-fade-leave-active {

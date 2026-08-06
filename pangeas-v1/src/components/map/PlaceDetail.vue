@@ -53,16 +53,42 @@
         </div>
       </section>
 
-      <button class="reward-card" type="button" :disabled="!isLoggedIn">
+      <button
+          class="reward-card"
+          type="button"
+          :class="{ visited: hasAlreadyEarnedPoints, expanded: showRewardDetails }"
+          :disabled="!isLoggedIn || previewLoading || !pointPreview?.eligible"
+          :aria-expanded="showRewardDetails"
+          @click="toggleRewardDetails"
+      >
         <span class="reward-icon">
-          <i class="fa-solid fa-compass" aria-hidden="true"></i>
+          <i :class="hasAlreadyEarnedPoints ? 'fa-solid fa-check' : 'fa-solid fa-compass'" aria-hidden="true"></i>
         </span>
         <span>
-          <strong>Récompense de voyage</strong>
-          <small>Cette visite vous rapporte {{ rewardPoints }} points</small>
+          <strong>{{ rewardTitle }}</strong>
+          <small>{{ rewardSubtitle }}</small>
         </span>
-        <img src="/icons/chevron-right.svg" alt="" aria-hidden="true" />
+        <img v-if="pointPreview?.eligible && !previewLoading" src="/icons/chevron-right.svg" alt="" aria-hidden="true" />
       </button>
+
+      <transition name="reward-details">
+        <div v-if="showRewardDetails && pointPreview?.eligible" class="reward-breakdown">
+          <div class="reward-total">
+            <span>Détail de la récompense</span>
+            <strong>+{{ formatPoints(pointPreview.totalPoints) }} pts</strong>
+          </div>
+          <ul>
+            <li v-for="(entry, index) in pointPreview.entries" :key="entry.milestoneKey || `${entry.type}-${index}`">
+              <span>
+                <i :class="entry.type === 'visit' ? 'fa-solid fa-location-dot' : 'fa-solid fa-star'" aria-hidden="true"></i>
+                {{ awardLabel(entry) }}
+              </span>
+              <b>+{{ formatPoints(entry.points) }}</b>
+            </li>
+          </ul>
+          <p v-if="hasBonus">Cette estimation inclut les bonus que vous débloquerez avec cette visite.</p>
+        </div>
+      </transition>
 
       <p v-if="!isLoggedIn" class="auth-callout">
         Connectez-vous pour lancer une visite, enregistrer ce lieu et gagner des points.
@@ -125,7 +151,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import axios from '@/axios';
@@ -142,6 +168,9 @@ const router = useRouter();
 const store = useStore();
 const place = ref({});
 const parsedAnecdotes = ref([]);
+const pointPreview = ref(null);
+const previewLoading = ref(false);
+const showRewardDetails = ref(false);
 
 const factIcons = ['fa-regular fa-newspaper', 'fa-solid fa-landmark', 'fa-solid fa-water'];
 const activityIcons = ['fa-solid fa-person-hiking', 'fa-solid fa-camera-retro', 'fa-solid fa-utensils', 'fa-regular fa-calendar'];
@@ -177,12 +206,20 @@ const categoryIcon = computed(() => {
   return categoryIcons[category] || 'fa-solid fa-location-dot';
 });
 
-const rewardPoints = computed(() => (
-  place.value?.reward_points ||
-  place.value?.rewardPoints ||
-  place.value?.points ||
-  50
-));
+const rewardPoints = computed(() => Number(pointPreview.value?.totalPoints ?? 30) || 30);
+const hasAlreadyEarnedPoints = computed(() => pointPreview.value?.eligible === false);
+const hasBonus = computed(() => (pointPreview.value?.entries?.length || 0) > 1);
+const rewardTitle = computed(() => {
+  if (previewLoading.value) return 'Calcul de votre récompense…';
+  if (hasAlreadyEarnedPoints.value) return 'Lieu déjà validé';
+  return hasBonus.value ? 'Bonus d’exploration' : 'Récompense de voyage';
+});
+const rewardSubtitle = computed(() => {
+  if (previewLoading.value) return 'Vérification de vos bonus et paliers';
+  if (hasAlreadyEarnedPoints.value) return 'Les points de ce lieu vous ont déjà été attribués';
+  if (!isLoggedIn.value) return 'Cette visite rapporte au moins 30 points';
+  return `Cette visite peut vous rapporter ${formatPoints(rewardPoints.value)} points`;
+});
 
 const normalizedActivities = computed(() => {
   const activities = place.value?.activities;
@@ -236,6 +273,55 @@ const fetchFavorites = async () => {
   }
 };
 
+const fetchPointPreview = async () => {
+  if (previewLoading.value) return;
+  if (!isLoggedIn.value || !route.params.id || !store.state.isOnline) {
+    pointPreview.value = null;
+    previewLoading.value = false;
+    return;
+  }
+
+  previewLoading.value = true;
+  try {
+    const response = await axios.get(`/api/points/visits/${route.params.id}/preview`, { withCredentials: true });
+    if (response.data.success) pointPreview.value = response.data.preview;
+  } catch (error) {
+    pointPreview.value = null;
+    console.warn('Estimation des points indisponible :', error.response?.data || error.message);
+  } finally {
+    previewLoading.value = false;
+  }
+};
+
+const formatPoints = value => new Intl.NumberFormat('fr-FR').format(Number(value) || 0);
+
+const categoryLabel = category => ({
+  nature: 'nature',
+  urbain: 'urbains',
+  historique: 'historiques',
+  secret: 'secrets',
+  frisson: 'frisson',
+}[category] || category);
+
+const awardLabel = entry => {
+  if (entry.type === 'visit') return 'Visite unique validée';
+  if (entry.milestoneKey === 'first_visit') return 'Bonus de toute première visite';
+  if (/^category_.+_first$/.test(entry.milestoneKey || '')) return 'Première visite dans cette catégorie';
+
+  const globalMilestone = String(entry.milestoneKey || '').match(/^visits_(\d+)$/);
+  if (globalMilestone) return `Palier de ${globalMilestone[1]} visites atteint`;
+
+  const categoryMilestone = String(entry.milestoneKey || '').match(/^category_(.+)_(\d+)$/);
+  if (categoryMilestone) return `Palier de ${categoryMilestone[2]} lieux ${categoryLabel(categoryMilestone[1])}`;
+
+  return entry.reason || 'Bonus d’exploration';
+};
+
+const toggleRewardDetails = () => {
+  if (!isLoggedIn.value || previewLoading.value || !pointPreview.value?.eligible) return;
+  showRewardDetails.value = !showRewardDetails.value;
+};
+
 const toggleFavorite = async () => {
   if (!isLoggedIn.value || !place.value?._id) return;
 
@@ -257,7 +343,16 @@ const goBack = () => {
 };
 
 onMounted(async () => {
-  await Promise.all([fetchPlace(), fetchFavorites()]);
+  await fetchPlace();
+  await Promise.all([fetchFavorites(), fetchPointPreview()]);
+});
+
+watch(isLoggedIn, loggedIn => {
+  if (loggedIn) fetchPointPreview();
+  else {
+    pointPreview.value = null;
+    showRewardDetails.value = false;
+  }
 });
 </script>
 
@@ -374,6 +469,109 @@ onMounted(async () => {
 
 .reward-card {
   margin: 1.5rem 0 1.65rem;
+}
+
+.reward-card.expanded {
+  margin-bottom: 0.65rem;
+}
+
+.reward-card.visited {
+  border-color: #b8d2c4;
+  background: #edf6f1;
+}
+
+.reward-card.visited .reward-icon {
+  background: #4f7962;
+}
+
+.reward-card > img {
+  transition: transform 0.2s ease;
+}
+
+.reward-card.expanded > img {
+  transform: rotate(90deg);
+}
+
+.reward-breakdown {
+  margin: 0 0 1.65rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #cdb8b0;
+  border-radius: 0.65rem;
+  background: #fffaf6;
+  box-shadow: var(--shadow-pangeas-card);
+}
+
+.reward-total,
+.reward-breakdown li,
+.reward-breakdown li > span {
+  display: flex;
+  align-items: center;
+}
+
+.reward-total,
+.reward-breakdown li {
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.reward-total {
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid #ded2cc;
+  color: #665852;
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.reward-total strong {
+  color: #315b47;
+  font-size: 0.9rem;
+}
+
+.reward-breakdown ul {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.reward-breakdown li {
+  color: #584943;
+  font-size: 0.77rem;
+}
+
+.reward-breakdown li > span {
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.reward-breakdown li i {
+  width: 1rem;
+  color: #8a6650;
+  text-align: center;
+}
+
+.reward-breakdown li b {
+  color: #315b47;
+  white-space: nowrap;
+}
+
+.reward-breakdown > p {
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px dashed #d4c3be;
+  color: #806e67;
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+
+.reward-details-enter-active,
+.reward-details-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reward-details-enter-from,
+.reward-details-leave-to {
+  opacity: 0;
+  transform: translateY(-0.35rem);
 }
 
 .auth-callout {

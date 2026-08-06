@@ -100,6 +100,9 @@ import Swal from "sweetalert2";
 
 export default {
   name: "AdminPlaceEdit",
+  inject: {
+    refreshPublicPlaces: { default: null },
+  },
   data() {
     return {
       form: {
@@ -175,6 +178,9 @@ export default {
       try {
         const id = this.$route.params.id;
         await axios.put(`/api/admin/places/${id}`, this.form, { withCredentials: true });
+        if (this.refreshPublicPlaces) {
+          await this.refreshPublicPlaces({ invalidateCache: true });
+        }
 
         await Swal.fire("Succès", "Lieu mis à jour avec succès.", "success");
         this.$router.push(`/admin/places/${id}`);

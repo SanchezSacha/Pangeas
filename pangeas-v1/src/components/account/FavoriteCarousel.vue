@@ -1,6 +1,12 @@
 <template>
   <section class="favorites-section">
-    <h1 class="favorites-title"><i class="fa-solid fa-heart"></i> Mes Favoris</h1>
+    <div class="favorites-heading">
+      <span><i class="fa-solid fa-heart"></i></span>
+      <div>
+        <p>À retrouver facilement</p>
+        <h2>Mes favoris</h2>
+      </div>
+    </div>
 
     <p v-if="visibleFavorites.length === 0" class="no-favorites-message">
       Vous n'avez aucun lieu en favori...
@@ -86,43 +92,71 @@ onMounted(fetchFavorites);
 
 
 <style scoped>
-.favorites-title {
-  margin: 0 0 1.25rem;
-  color: #442a22;
-  font-size: 1.45rem;
+.favorites-heading {
   display: flex;
   align-items: center;
-  gap: 0.65rem;
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
 }
 
-.favorites-title i {
+.favorites-heading > span {
+  display: grid;
+  place-items: center;
+  width: 2.65rem;
+  height: 2.65rem;
+  border-radius: 0.75rem;
+  background: #ead7d5;
+}
+
+.favorites-heading i {
   color: #5d4037;
 }
 
+.favorites-heading p {
+  color: #8a6d62;
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.favorites-heading h2 {
+  color: #442a22;
+  font-size: 1.35rem;
+}
+
 .favorites-section {
-  margin: 2.75rem auto 0;
-  padding: 1.5rem;
-  border: 1px solid rgba(212, 195, 190, 0.58);
-  border-radius: 0.6rem;
-  background: rgba(247, 243, 238, 0.82);
-  box-shadow: 0 8px 30px rgba(68, 42, 34, 0.055);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 1.25rem;
+  border: 1px solid rgba(205, 184, 176, 0.85);
+  border-radius: 0.9rem;
+  background: rgba(247, 243, 238, 0.88);
+  box-shadow: var(--shadow-pangeas-card);
 }
 
 .favorites-wrapper {
   display: flex;
+  align-items: stretch;
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
   padding: 0.5rem 0 0;
+  min-width: 0;
 }
 
 .carousel-wrapper {
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
 }
 
 .carousel-container {
+  width: 100%;
+  min-width: 0;
   overflow-x: hidden;
   padding: 0.35rem;
   -webkit-overflow-scrolling: touch;
@@ -132,11 +166,13 @@ onMounted(fetchFavorites);
 
 .carousel {
   display: flex;
+  align-items: stretch;
   gap: 1rem;
   scroll-snap-type: x mandatory;
   scroll-padding: 1rem;
   scroll-behavior: smooth;
   transition: transform 0.3s ease-in-out;
+  min-width: 0;
 }
 
 .carousel > * {
@@ -209,14 +245,62 @@ onMounted(fetchFavorites);
   .carousel-container{
     overflow-x: auto;
   }
-  .favorites-title {
-    margin: 0 0 1rem 0;
-    font-size: 1.28rem;
-  }
   .favorites-section{
-    margin-top: 0;
     padding: 1rem;
   }
+
+  .favorites-wrapper {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-inline: -1rem;
+    padding: 0.25rem 1rem 0.8rem;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .favorites-wrapper::-webkit-scrollbar {
+    display: none;
+  }
+
+  .favorites-wrapper > *,
+  .carousel > * {
+    flex: 0 0 15.5rem;
+    scroll-snap-align: start;
+  }
+
+  .carousel-container {
+    margin-inline: -0.35rem;
+  }
+}
+
+.favorites-wrapper > :deep(.popup-card),
+.carousel > :deep(.popup-card) {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+}
+
+.favorites-wrapper > :deep(.popup-card h5),
+.carousel > :deep(.popup-card h5) {
+  display: -webkit-box;
+  min-height: 2.6rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.favorites-wrapper > :deep(.popup-card .popup-meta-row),
+.carousel > :deep(.popup-card .popup-meta-row) {
+  align-content: flex-start;
+  height: 3.25rem;
+  min-height: 3.25rem;
+  overflow: hidden;
+}
+
+.favorites-wrapper > :deep(.popup-card .place-actions),
+.carousel > :deep(.popup-card .place-actions) {
+  margin-top: auto;
 }
 
 </style>

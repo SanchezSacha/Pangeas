@@ -21,6 +21,8 @@
       <span class="level">Niveau {{ user?.level || 1 }}</span>
     </div>
 
+    <PointsProgressCard />
+
     <div class="profile-bio-card">
       <div class="bio-heading">
         <span>Bio</span>
@@ -63,6 +65,7 @@
 <script>
 import SuccessPopup from "../modal/SuccessPopup.vue";
 import ErrorPopup from "../modal/ErrorPopup.vue";
+import PointsProgressCard from '../PointsProgressCard.vue';
 import axios from "@/axios";
 import { getAvatarValidationError, getUploadErrorMessage, resolveAvatarUrl } from '@/utils/avatar';
 
@@ -70,7 +73,8 @@ export default {
   name: 'EditAccount',
   components: {
     SuccessPopup,
-    ErrorPopup
+    ErrorPopup,
+    PointsProgressCard
   },
   props: {
     user: {
@@ -193,7 +197,9 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
   max-width: 54rem;
+  min-width: 0;
   margin: 0 auto;
   padding: 1.25rem 0 2.75rem;
   text-align: center;
@@ -284,6 +290,8 @@ export default {
 
 .profile-bio-card {
   width: min(100%, 34rem);
+  max-width: 100%;
+  min-width: 0;
   margin-top: 1.35rem;
   padding: 1rem;
   border: 1px solid rgba(212, 195, 190, 0.58);
@@ -364,6 +372,8 @@ export default {
   align-items: center;
   gap: 1rem;
   max-width: 54rem;
+  width: 100%;
+  min-width: 0;
   margin: 0 auto 3.25rem;
   opacity: 0.38;
 }
@@ -413,6 +423,37 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .profile-hero {
+    padding-top: 0.25rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .avatar-control {
+    width: 6.5rem;
+    height: 6.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .profile-hero h2 {
+    font-size: 1.75rem;
+  }
+
+  .profile-hero > p {
+    font-size: 0.86rem;
+  }
+
+  .profile-badges {
+    margin-top: 0.8rem;
+  }
+
+  .profile-bio-card {
+    margin-top: 0.85rem;
+  }
+
+  .profile-divider {
+    margin-bottom: 1.25rem;
+  }
+
   .btn-actions {
     flex-direction: column;
     gap: 0.75rem;
