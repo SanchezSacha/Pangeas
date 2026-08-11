@@ -2,7 +2,7 @@
   <div class="map-shell">
     <div class="map-search-panel">
       <div class="map-search" role="search">
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+        <span class="map-symbol" v-html="searchIcon" aria-hidden="true"></span>
         <input
             v-model.trim="searchQuery"
             type="search"
@@ -15,7 +15,7 @@
             aria-label="Effacer la recherche"
             @click="clearSearch"
         >
-          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          <span class="map-symbol" v-html="closeIcon" aria-hidden="true"></span>
         </button>
         <small v-if="hasActiveFilters">
           {{ filteredPlaces.length }} résultat{{ filteredPlaces.length > 1 ? 's' : '' }}
@@ -31,7 +31,7 @@
             :aria-pressed="isCategorySelected(filter.key)"
             @click="toggleCategoryFilter(filter.key)"
         >
-          <i :class="filter.icon" aria-hidden="true"></i>
+          <span class="map-symbol" v-html="filter.icon" aria-hidden="true"></span>
           <span>{{ filter.label }}</span>
         </button>
       </div>
@@ -42,6 +42,11 @@
     </p>
 
     <div id="map" class="map-container"></div>
+
+    <button class="propose-place-cta" type="button" @click="$emit('propose-place')">
+      <span class="propose-place-plus" aria-hidden="true">+</span>
+      <span class="propose-place-label">Proposer un lieu</span>
+    </button>
   </div>
 </template>
 
@@ -56,6 +61,14 @@ import haversine from 'haversine-distance';
 import store from '../../store';
 import { createApp } from 'vue';
 import axios from '@/axios';
+import buildingIcon from '@fortawesome/fontawesome-free/svgs/solid/building.svg?raw';
+import ghostIcon from '@fortawesome/fontawesome-free/svgs/solid/ghost.svg?raw';
+import landmarkIcon from '@fortawesome/fontawesome-free/svgs/solid/landmark.svg?raw';
+import locationIcon from '@fortawesome/fontawesome-free/svgs/solid/location-dot.svg?raw';
+import questionIcon from '@fortawesome/fontawesome-free/svgs/solid/question.svg?raw';
+import searchIcon from '@fortawesome/fontawesome-free/svgs/solid/magnifying-glass.svg?raw';
+import treeIcon from '@fortawesome/fontawesome-free/svgs/solid/tree.svg?raw';
+import xmarkIcon from '@fortawesome/fontawesome-free/svgs/solid/xmark.svg?raw';
 import {
   rememberCurrentVisit,
   startVisitOfflineAware
@@ -64,49 +77,49 @@ import {
 const placeMarkerTypes = {
   nature: {
     label: 'Nature',
-    icon: 'fa-solid fa-tree',
+    icon: treeIcon,
     className: 'nature',
   },
   historique: {
     label: 'Historique',
-    icon: 'fa-solid fa-landmark',
+    icon: landmarkIcon,
     className: 'historic',
   },
   historical: {
     label: 'Historique',
-    icon: 'fa-solid fa-landmark',
+    icon: landmarkIcon,
     className: 'historic',
   },
   urbain: {
     label: 'Urbain',
-    icon: 'fa-solid fa-building',
+    icon: buildingIcon,
     className: 'urban',
   },
   urban: {
     label: 'Urbain',
-    icon: 'fa-solid fa-building',
+    icon: buildingIcon,
     className: 'urban',
   },
   frisson: {
     label: 'Frisson',
-    icon: 'fa-solid fa-ghost',
+    icon: ghostIcon,
     className: 'thrill',
   },
   spooky: {
     label: 'Frisson',
-    icon: 'fa-solid fa-ghost',
+    icon: ghostIcon,
     className: 'thrill',
   },
   secret: {
     label: 'Secret',
-    icon: 'fa-solid fa-question',
+    icon: questionIcon,
     className: 'secret',
   },
 };
 
 const fallbackMarkerType = {
   label: 'Lieu',
-  icon: 'fa-solid fa-location-dot',
+  icon: locationIcon,
   className: 'default',
 };
 
@@ -120,27 +133,27 @@ const categoryFilterOptions = [
   {
     key: 'nature',
     label: 'Nature',
-    icon: 'fa-solid fa-tree',
+    icon: treeIcon,
   },
   {
     key: 'historique',
     label: 'Historique',
-    icon: 'fa-solid fa-landmark',
+    icon: landmarkIcon,
   },
   {
     key: 'urbain',
     label: 'Urbain',
-    icon: 'fa-solid fa-building',
+    icon: buildingIcon,
   },
   {
     key: 'frisson',
     label: 'Frisson',
-    icon: 'fa-solid fa-ghost',
+    icon: ghostIcon,
   },
   {
     key: 'secret',
     label: 'Secret',
-    icon: 'fa-solid fa-question',
+    icon: questionIcon,
   },
 ];
 
@@ -157,6 +170,7 @@ const normalizePlaceCategory = (category = '') => {
 
 export default {
   name: 'MapLeaflet',
+  emits: ['propose-place'],
   props: {
     places: {
       type: Array,
@@ -177,6 +191,8 @@ export default {
       searchQuery: '',
       selectedCategories: [],
       categoryFilters: categoryFilterOptions,
+      searchIcon,
+      closeIcon: xmarkIcon,
       clusterMaxZoom: 15,
       clusterRadius: 48,
     };
@@ -424,7 +440,7 @@ export default {
       const popupApp = createApp(PlaceModal, { place, map: this.map });
       const markerIcon = L.divIcon({
         className: `place-marker place-marker-${markerType.className}`,
-        html: `<span class="place-marker-pin" aria-hidden="true"><i class="${markerType.icon}"></i></span>`,
+        html: `<span class="place-marker-pin" aria-hidden="true"><span class="map-symbol">${markerType.icon}</span></span>`,
         iconSize: [44, 50],
         iconAnchor: [22, 46],
         popupAnchor: [0, -42],
@@ -769,7 +785,7 @@ export default {
   color: var(--color-pangeas-bg);
 }
 
-.map-category-filters i {
+.map-category-filters .map-symbol {
   font-size: 0.82rem;
 }
 
@@ -788,6 +804,44 @@ export default {
   font-weight: 900;
   box-shadow: 0 10px 24px rgba(68, 42, 34, 0.12);
   transform: translateX(-50%);
+}
+
+.propose-place-cta {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.2rem;
+  padding: 0.55rem 1.05rem 0.55rem 0.65rem;
+  border: 1px solid rgba(253, 249, 244, 0.5);
+  border-radius: 999px;
+  background: var(--pangeas-cta-gradient);
+  color: var(--color-pangeas-bg);
+  box-shadow: 0 14px 32px rgba(68, 42, 34, 0.28);
+  font-size: 0.9rem;
+  font-weight: 900;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.propose-place-cta:hover,
+.propose-place-cta:focus-visible {
+  box-shadow: var(--pangeas-cta-hover-shadow);
+  transform: translateY(-2px);
+}
+
+.propose-place-plus {
+  display: grid;
+  place-items: center;
+  width: 2.05rem;
+  height: 2.05rem;
+  border-radius: 999px;
+  background: rgba(253, 249, 244, 0.18);
+  font-size: 1.65rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
 @media (max-width: 767px) {
@@ -810,5 +864,41 @@ export default {
     text-align: center;
     transform: none;
   }
+
+  .propose-place-cta {
+    right: 1rem;
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+    width: 3.55rem;
+    height: 3.55rem;
+    min-height: 0;
+    padding: 0;
+    justify-content: center;
+    border: 2px solid var(--color-pangeas-bg);
+  }
+
+  .propose-place-plus {
+    width: auto;
+    height: auto;
+    background: transparent;
+    font-size: 2.15rem;
+  }
+
+  .propose-place-label {
+    position: absolute;
+    right: 4.15rem;
+    width: max-content;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.65rem;
+    background: var(--color-pangeas-bg);
+    color: var(--color-pangeas-primary);
+    box-shadow: 0 8px 20px rgba(68, 42, 34, 0.16);
+    font-size: 0.72rem;
+    pointer-events: none;
+    animation: dismiss-propose-hint 0.35s ease 4.5s forwards;
+  }
+}
+
+@keyframes dismiss-propose-hint {
+  to { opacity: 0; transform: translateX(0.35rem); }
 }
 </style>

@@ -37,6 +37,13 @@
       </router-link>
     </li>
 
+    <li :class="['nav-item', { active: route.path.startsWith('/admin/place-submissions') }]">
+      <router-link class="nav-link" to="/admin/place-submissions" @click="$emit('navigate')">
+        <i class="fas fa-fw fa-inbox"></i>
+        <span v-if="!collapsed">Propositions</span>
+      </router-link>
+    </li>
+
     <li :class="['nav-item', { active: isActive('/admin/rewards') }]">
       <router-link class="nav-link" to="/admin/rewards" @click="$emit('navigate')">
         <i class="fas fa-fw fa-gift"></i>

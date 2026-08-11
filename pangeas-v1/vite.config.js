@@ -24,13 +24,13 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
-            src: '/logo_mobile_pangeas.png',
-            sizes: '500x500',
+            src: '/pwa-icon-192.png',
+            sizes: '192x192',
             type: 'image/png'
           },
           {
-            src: '/logo_mobile_pangeas_blanc.png',
-            sizes: '500x500',
+            src: '/pwa-icon-512.png',
+            sizes: '512x512',
             type: 'image/png'
           }
         ],
@@ -57,6 +57,7 @@ export default defineConfig({
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        globIgnores: ['**/logo_mobile_pangeas_blanc.png', '**/sb-admin2/**'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {

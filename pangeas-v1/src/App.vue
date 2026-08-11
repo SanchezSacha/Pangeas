@@ -1,7 +1,7 @@
 <template>
   <div class="container-fluid p-0 app-shell" :class="{ 'has-mobile-bottom-nav': showMobileBottomNav }">
     <Sidebar v-if="showSidebar" @open-register="showRegisterModal" @open-login="showLoginModal"/>
-    <router-view :places="places" />
+    <router-view :places="places" @propose-place="handleProposePlace" />
     <PwaInstallNudge />
     <OfflineStatus />
     <MobileBottomNav v-if="showMobileBottomNav" @open-login="showLoginModal" @open-register="showRegisterModal"/>
@@ -77,7 +77,7 @@ export default {
     showSidebar() {
       return !this.$route.path.startsWith('/admin') &&
           !this.isAuthRoute &&
-          !['Parametres', 'MonCompte', 'PlaceDetail', 'Recompenses'].includes(this.$route.name);
+          !['Parametres', 'MonCompte', 'PlaceDetail', 'Recompenses', 'ProposerLieu', 'MesPropositions', 'ModifierProposition'].includes(this.$route.name);
     },
     showMobileBottomNav() {
       return !this.$route.path.startsWith('/admin') && !this.isAuthRoute;
@@ -117,6 +117,13 @@ export default {
     showLoginModal() {
       this.showRegistration = false;
       this.showLogin = true;
+    },
+    handleProposePlace() {
+      if (!store.getters.isLoggedIn) {
+        this.showLoginModal();
+        return;
+      }
+      this.$router.push({ name: 'ProposerLieu' });
     },
     animateClose(modalType, event) {
       const btn = event.currentTarget;

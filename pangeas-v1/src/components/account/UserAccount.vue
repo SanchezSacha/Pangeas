@@ -37,6 +37,7 @@
           :load-error="dashboardError"
           @retry="fetchDashboard"
         />
+        <PlaceSubmissionSummary />
         <FavoriteCarousel />
         <HistoricPlaces />
       </div>
@@ -52,6 +53,7 @@ import FavoriteCarousel from "./FavoriteCarousel.vue";
 import StatsUser from "./StatsUser.vue";
 import HistoricPlaces from "./HistoricPlaces.vue";
 import AccountRewards from './AccountRewards.vue';
+import PlaceSubmissionSummary from './PlaceSubmissionSummary.vue';
 import axios from "@/axios.js";
 
 const user = ref(null);

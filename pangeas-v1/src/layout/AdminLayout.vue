@@ -19,6 +19,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import '@/assets/admin/sb-admin-2.min.css';
 import SidebarAdmin from '@/admin/SidebarAdmin.vue';
 import TopbarAdmin from '@/admin/TopbarAdmin.vue';
 

@@ -1,16 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import store from '../../src/store/index.js';
 import axios from '@/axios.js';
-import UserAccount from '../components/account/UserAccount.vue';
-import PlaceDetail from "../components/map/PlaceDetail.vue";
-import SettingsAccount from '../components/settings/SettingsAccount.vue';
-import CGU from '../components/legal/CGU.vue';
-import Confidentialite from '../components/legal/PolConf.vue';
-import MentionsLegales from '../components/legal/MentionsLegales.vue';
 import HomeView from "../HomeView.vue";
-import ForgotPassword from "../components/auth/ForgotPassword.vue";
-import ResetPassword from "../components/auth/ResetPassword.vue";
-import RewardsView from "../components/rewards/RewardsView.vue";
 
 const routes = [
     {
@@ -21,52 +12,79 @@ const routes = [
     {
         path: '/mon-compte',
         name: 'MonCompte',
-        component: UserAccount,
+        component: () => import('../components/account/UserAccount.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/proposer-un-lieu',
+        name: 'ProposerLieu',
+        component: () => import('../components/submissions/PlaceSubmissionForm.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/mes-propositions',
+        name: 'MesPropositions',
+        component: () => import('../components/submissions/PlaceSubmissionHistory.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/mes-propositions/:id/modifier',
+        name: 'ModifierProposition',
+        component: () => import('../components/submissions/PlaceSubmissionForm.vue'),
+        meta: { requiresAuth: true }
+    },
+    {
+        path: '/account/place-submissions/:id',
+        redirect: to => ({ name: 'MesPropositions', query: { open: to.params.id } }),
         meta: { requiresAuth: true }
     },
     {
         path: '/parametres',
         name: 'Parametres',
-        component: SettingsAccount,
+        component: () => import('../components/settings/SettingsAccount.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/recompenses',
         name: 'Recompenses',
-        component: RewardsView,
+        component: () => import('../components/rewards/RewardsView.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/lieux/:id',
         name: 'PlaceDetail',
-        component: PlaceDetail,
+        component: () => import('../components/map/PlaceDetail.vue'),
+    },
+    {
+        path: '/places/:id',
+        redirect: to => ({ name: 'PlaceDetail', params: { id: to.params.id } })
     },
     {
         path: '/cgu',
         name : 'CGU',
-        component: CGU,
+        component: () => import('../components/legal/CGU.vue'),
     },
     {
         path: '/confidentialite',
         name : 'confidentialite',
-        component: Confidentialite,
+        component: () => import('../components/legal/PolConf.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/mentions-legales',
         name: 'mentions-legales',
-        component: MentionsLegales,
+        component: () => import('../components/legal/MentionsLegales.vue'),
         meta: { requiresAuth: true }
     },
     {
         path: '/mot-de-passe-oublie',
         name: 'ForgotPassword',
-        component: ForgotPassword
+        component: () => import('../components/auth/ForgotPassword.vue')
     },
     {
         path: '/reset-password/:token?',
         name: 'ResetPassword',
-        component: ResetPassword
+        component: () => import('../components/auth/ResetPassword.vue')
     },
 //////////////////////////////////////////////////// ADMIN ROUTES//////////////////////////////////////////////////////////////////////
     {
@@ -107,6 +125,18 @@ const routes = [
                 path: 'places',
                 name: 'AdminPlaces',
                 component: () => import('@/admin/AdminPlaces.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'place-submissions',
+                name: 'AdminPlaceSubmissions',
+                component: () => import('@/admin/AdminPlaceSubmissions.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'place-submissions/:id',
+                name: 'AdminPlaceSubmissionDetails',
+                component: () => import('@/admin/AdminPlaceSubmissionDetails.vue'),
                 meta: { requiresAdmin: true }
             },
             {

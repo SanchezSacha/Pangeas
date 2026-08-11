@@ -37,6 +37,7 @@
 </template>
 
 <script setup>
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import {computed, onMounted, ref} from 'vue';
 import axios from "@/axios.js";
 

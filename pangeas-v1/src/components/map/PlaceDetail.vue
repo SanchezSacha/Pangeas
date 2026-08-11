@@ -151,6 +151,7 @@
 </template>
 
 <script setup>
+import '@fortawesome/fontawesome-free/css/all.min.css';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
